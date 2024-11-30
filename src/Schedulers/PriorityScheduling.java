@@ -1,11 +1,11 @@
 package Schedulers;
 
-import Processes.FCAIProcess;
+import Processes;
 
 import java.util.List;
 
 public class PriorityScheduling extends Scheduler{
-    public PriorityScheduling(List<FCAIProcess> ProcessList) {
+    public PriorityScheduling(List<Process> ProcessList) {
         super(ProcessList);
     }
 
@@ -15,7 +15,7 @@ public class PriorityScheduling extends Scheduler{
     }
 
     @Override
-    protected void calculateAndPrint(List<FCAIProcess> ProcessList) {
+    protected void calculateAndPrint(List<Process> ProcessList) {
 
     }
 }
