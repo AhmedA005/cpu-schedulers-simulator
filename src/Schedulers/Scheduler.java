@@ -1,13 +1,17 @@
 package Schedulers;
 
+import Processes.FCAIProcess;
+
 import java.util.List;
 
 public abstract class Scheduler {
-    protected List<Process> processList;
+    protected List<FCAIProcess> processList;
 
-    public Scheduler(List<Process> processList) {
-        this.processList = processList;
+    public Scheduler(List<FCAIProcess> ProcessList) {
+        this.processList = ProcessList;
     }
+
     public abstract void run();
-    protected void calculateAndPrint(List<Process> processList) {}
+
+    protected abstract void calculateAndPrint(List<FCAIProcess> ProcessList);
 }
