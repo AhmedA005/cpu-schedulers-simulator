@@ -1,6 +1,6 @@
 package Schedulers;
 
-import Processes.FCAIProcess;
+import Processes;
 
 import java.util.List;
 
