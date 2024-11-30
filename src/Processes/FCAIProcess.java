@@ -1,30 +1,22 @@
-package Schedulers;
+package Processes;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Process {
-    private String name;
-    private int arrivalTime;
-    private int burstTime;
+public class FCAIProcess extends Process {
+
     private int lastBurstTime;
     private int remainingBurstTime;
-    private int priority;
     private int quantum;
     private int lastFinishTime;
-    private String color;
     private List<Integer> quantumHistory;
     private boolean isPreempted;
 
-    public Process(String name, int arrivalTime, int burstTime,
-                   int priority, int quantum, String color) {
-        this.name = name;
-        this.arrivalTime = arrivalTime;
-        this.burstTime = burstTime;
+    public FCAIProcess(String name, int arrivalTime, int burstTime,
+                       int priority, int quantum, String color) {
+        super(name, arrivalTime, burstTime, priority, color);
         this.remainingBurstTime = burstTime;
-        this.priority = priority;
         this.quantum = quantum;
-        this.color = color;
         this.lastFinishTime = arrivalTime;
         this.quantumHistory = new ArrayList<>();
         this.quantumHistory.add(quantum);
@@ -37,13 +29,6 @@ public class Process {
         lastFinishTime += executionTime;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public int getArrivalTime() {
-        return arrivalTime;
-    }
 
     public int getBurstTime() {
         return burstTime;
@@ -57,9 +42,6 @@ public class Process {
         return remainingBurstTime;
     }
 
-    public int getPriority() {
-        return priority;
-    }
 
     public int getQuantum() {
         return quantum;
