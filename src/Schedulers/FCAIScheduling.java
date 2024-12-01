@@ -11,20 +11,26 @@ import java.util.List;
 public class FCAIScheduling extends Scheduler {
     List<Process> finishedProcesses;
     List<FCAIProcess> readyQueue;
+    List<Process> copyProcessList;
     int currentTime;
+    double V1;
+    double V2;
 
     public FCAIScheduling(List<Process> processList) {
         super(processList);
+        this.copyProcessList = new ArrayList<>(processList);
         this.finishedProcesses = new ArrayList<>();
         this.readyQueue = new ArrayList<>();
         this.currentTime = 0;
+        this.V1 = processList.stream().mapToDouble(Process::getArrivalTime).max().orElse(0) / 10;
+        this.V2 = processList.stream().mapToDouble(Process::getBurstTime).max().orElse(0) / 10;
     }
 
     @Override
     public void run() {
         processList.sort(Comparator.comparing(Process::getArrivalTime));
 
-        while (!processList.isEmpty() || !readyQueue.isEmpty()) {
+        while (!copyProcessList.isEmpty() || !readyQueue.isEmpty()) {
             addArrivedProcesses();
 
             if (readyQueue.isEmpty()) {
@@ -33,7 +39,6 @@ public class FCAIScheduling extends Scheduler {
             }
 
             FCAIProcess currentProcess = readyQueue.removeFirst();
-            readyQueue.sort(Comparator.comparing(this::calculateFCAIFactor));
 
             executeProcess(currentProcess);
         }
@@ -48,11 +53,8 @@ public class FCAIScheduling extends Scheduler {
 
 
         for (Process process : finishedProcesses) {
-
-            FCAIProcess fcaiProcess = (FCAIProcess) process;
-            int wt = fcaiProcess.getLastFinishTime() - fcaiProcess.getArrivalTime() - fcaiProcess.getBurstTime();
-            int waitingTime = (((FCAIProcess) process).getLastFinishTime()) - process.getArrivalTime() - process.getBurstTime();
-            int turnaroundTime = ((FCAIProcess) process).getLastFinishTime() - process.getArrivalTime();
+            int waitingTime = (((FCAIProcess) process).getFinalFinishTime()) - process.getArrivalTime() - process.getBurstTime();
+            int turnaroundTime = ((FCAIProcess) process).getFinalFinishTime() - process.getArrivalTime();
 
             System.out.println("Process: " + process.getName());
             System.out.println("Waiting Time: " + waitingTime);
@@ -73,21 +75,25 @@ public class FCAIScheduling extends Scheduler {
     private void executeProcess(FCAIProcess currentProcess) {
         int nonPreemptiveTime = (int) Math.ceil(0.4 * currentProcess.getQuantum());
         int execTime = Math.min(currentProcess.getRemainingBurstTime(), currentProcess.getQuantum());
+        int executedTime = 0;
 
         // Execute the process, checking for preemption at each step
-        for (int executedTime = 0; executedTime < execTime; ) {
+        while (executedTime < execTime) {
             // Check if we're past the non-preemptive period
             boolean isPastNonPreemptivePeriod = executedTime >= nonPreemptiveTime;
 
             // Check if there's a better process in the queue
+            FCAIProcess betterProcess = checkBetterProcess(currentProcess);
             boolean shouldPreempt = !readyQueue.isEmpty() &&
                     isPastNonPreemptivePeriod &&
-                    calculateFCAIFactor(readyQueue.get(0)) <= calculateFCAIFactor(currentProcess);
+                    betterProcess != null;
 
             if (shouldPreempt) {
                 // Preempt the current process
                 currentProcess.setPreempted(true);
-                updateProcessQuantum(currentProcess);
+                readyQueue.remove(betterProcess);
+                readyQueue.addFirst(betterProcess);
+                updateProcessQuantum(currentProcess, executedTime);
                 readyQueue.add(currentProcess);
                 return;
             }
@@ -99,6 +105,8 @@ public class FCAIScheduling extends Scheduler {
 
             // Break if process is complete
             if (currentProcess.getRemainingBurstTime() <= 0) {
+                currentProcess.setPreempted(false);
+                currentProcess.setFinalFinishTime(currentTime);
                 finishedProcesses.add(currentProcess);
                 return;
             }
@@ -106,8 +114,9 @@ public class FCAIScheduling extends Scheduler {
 
         }
 
+        currentProcess.setPreempted(false);
         // Update quantum and handle process disposition
-        updateProcessQuantum(currentProcess);
+        updateProcessQuantum(currentProcess, executedTime);
 
         if (currentProcess.getRemainingBurstTime() > 0) {
             readyQueue.add(currentProcess);
@@ -116,21 +125,22 @@ public class FCAIScheduling extends Scheduler {
         }
     }
 
-    private void updateProcessQuantum(FCAIProcess currentProcess) {
+    private void updateProcessQuantum(FCAIProcess currentProcess, int executedTime) {
         if (currentProcess.getRemainingBurstTime() > 0) {
             if (currentProcess.isPreempted()) {
-                currentProcess.setQuantum(currentProcess.getQuantum() + (currentProcess.getQuantum() - (currentProcess.getLastBurstTime() - currentProcess.getRemainingBurstTime())));
+                currentProcess.setQuantum(currentProcess.getQuantum() + (currentProcess.getQuantum() - executedTime));
             } else currentProcess.setQuantum(currentProcess.getQuantum() + 2);
         }
 
     }
 
     private void addArrivedProcesses() {
-        Iterator<Process> iterator = processList.iterator();
+        Iterator<Process> iterator = copyProcessList.iterator();
         while (iterator.hasNext()) {
-            Process process = (FCAIProcess) iterator.next();
+            Process process = iterator.next();
             if (process.getArrivalTime() <= currentTime) {
                 readyQueue.add((FCAIProcess) process);
+
                 iterator.remove();
             }
         }
@@ -138,9 +148,18 @@ public class FCAIScheduling extends Scheduler {
 
 
     private double calculateFCAIFactor(FCAIProcess process) {
-        double V1 = processList.stream().mapToDouble(Process::getArrivalTime).max().orElse(0) / 10;
-        double V2 = processList.stream().mapToDouble(Process::getBurstTime).max().orElse(0) / 10;
         return (10 - process.getPriority()) + ((double) process.getArrivalTime() / V1)
                 + ((double) process.getRemainingBurstTime() / V2);
+    }
+
+    private FCAIProcess checkBetterProcess(FCAIProcess currentProcess) {
+        FCAIProcess bestProcess = null;
+        for (FCAIProcess process : readyQueue) {
+            if (process != currentProcess && calculateFCAIFactor(process) < calculateFCAIFactor(currentProcess)) {
+                bestProcess = process;
+                currentProcess = process;
+            }
+        }
+        return bestProcess;
     }
 }

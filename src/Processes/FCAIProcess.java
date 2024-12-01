@@ -5,10 +5,9 @@ import java.util.List;
 
 public class FCAIProcess extends Process {
 
-    private int lastBurstTime;
     private int remainingBurstTime;
     private int quantum;
-    private int lastFinishTime;
+    private int finalFinishTime;
     private List<Integer> quantumHistory;
     private boolean isPreempted;
 
@@ -17,25 +16,13 @@ public class FCAIProcess extends Process {
         super(name, arrivalTime, burstTime, priority, color);
         this.remainingBurstTime = burstTime;
         this.quantum = quantum;
-        this.lastFinishTime = arrivalTime;
         this.quantumHistory = new ArrayList<>();
         this.quantumHistory.add(quantum);
         this.isPreempted = false;
     }
 
     public void execute(int executionTime) {
-        lastFinishTime = burstTime;
         remainingBurstTime -= executionTime;
-        lastFinishTime += executionTime;
-    }
-
-
-    public int getBurstTime() {
-        return burstTime;
-    }
-
-    public int getLastBurstTime() {
-        return lastBurstTime;
     }
 
     public int getRemainingBurstTime() {
@@ -52,10 +39,6 @@ public class FCAIProcess extends Process {
         this.quantumHistory.add(quantum);
     }
 
-    public int getLastFinishTime() {
-        return lastFinishTime;
-    }
-
     public List<Integer> getQuantumHistory() {
         return quantumHistory;
     }
@@ -66,6 +49,14 @@ public class FCAIProcess extends Process {
 
     public boolean isPreempted() {
         return isPreempted;
+    }
+
+    public int getFinalFinishTime() {
+        return finalFinishTime;
+    }
+
+    public void setFinalFinishTime(int finalFinishTime) {
+        this.finalFinishTime = finalFinishTime;
     }
 }
 
