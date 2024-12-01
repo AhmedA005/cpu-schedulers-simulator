@@ -6,20 +6,8 @@ import Processes.Process;
 import java.util.Comparator;
 import java.util.List;
 
-/*class MyComparator implements Comparator<Process> {
-    public int compare(Process x, Process y)
-    {
-
-        int comp =  x.getArrivalTime() - y.getArrivalTime();
-        if(comp == 0){
-            comp =  x.getPriority() - y.getPriority();
-        }
-        return comp;
-    }
-}*/
-
 public class PriorityScheduling extends Scheduler {
-    private List<Process> processList;
+    List<PriorityProcess> finishedProcesses;
     int size;
     int time;
     int counter;
@@ -47,9 +35,7 @@ public class PriorityScheduling extends Scheduler {
                     p.setTotalWaitingTime(time - p.getArrivalTime());
                     avgwaitingTime += p.getTotalWaitingTime();
                     time += p.getBurstTime();
-                    //p.setFinished(true);
-                    System.out.println("Process: " + p.getName());
-                    System.out.println("Waiting time: " + p.getTotalWaitingTime());
+                    finishedProcesses.add(p);
                     processList.remove(p);
                     counter++;
                     break;
@@ -58,11 +44,14 @@ public class PriorityScheduling extends Scheduler {
             if (!flag)
                 time++;
         }
-        System.out.println("Average waiting time: " + avgwaitingTime / size);
     }
 
     @Override
     protected void calculateAndPrint(List<Process> ProcessList) {
-
+        for (PriorityProcess process : finishedProcesses) {
+            System.out.println("Process: " + process.getName());
+            System.out.println("Waiting time: " + process.getTotalWaitingTime());
+        }
+        System.out.println("Average waiting time: " + avgwaitingTime / size);
     }
 }
