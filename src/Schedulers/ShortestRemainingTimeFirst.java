@@ -1,6 +1,6 @@
 package Schedulers;
 
-import Processes;
+import Processes.Process;
 
 import java.util.List;
 

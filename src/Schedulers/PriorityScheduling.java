@@ -1,6 +1,7 @@
 package Schedulers;
 
 import Processes.PriorityProcess;
+import Processes.Process;
 
 import java.util.Comparator;
 import java.util.List;
@@ -17,20 +18,30 @@ import java.util.List;
     }
 }*/
 
-public class PriorityScheduling{
-    private List<PriorityProcess> processList;
-    public PriorityScheduling(List<PriorityProcess> ProcessList) {
-        this.processList = ProcessList;
+public class PriorityScheduling extends Scheduler {
+    private List<Process> processList;
+    int size;
+    int time;
+    int counter;
+    float avgwaitingTime;
+
+
+    public PriorityScheduling(List<Process> processList) {
+        super(processList); // Initialize parent class's processList
+        this.processList = processList; // Explicitly initialize shadowed field
+        this.size = processList.size(); // Dynamically calculate size
+        this.time = 0;
+        this.counter = 0;
+        this.avgwaitingTime = 0;
     }
-    int time = 0;
-    int size = processList.size();
-    int counter = 0;
-    float avgwaitingTime = 0;
+
+
     public void run() {
-        processList.sort(Comparator.comparingInt(PriorityProcess::getPriority));
-        while(counter < size) {
+        processList.sort(Comparator.comparingInt(Process::getPriority));
+        while (counter < size) {
             boolean flag = false;
-            for (PriorityProcess p : processList) {
+            for (Process process : processList) {
+                PriorityProcess p = (PriorityProcess) process;
                 if (p.getArrivalTime() <= time) {
                     flag = true;
                     p.setTotalWaitingTime(time - p.getArrivalTime());
@@ -47,6 +58,11 @@ public class PriorityScheduling{
             if (!flag)
                 time++;
         }
-        System.out.println("Average waiting time: " + avgwaitingTime/size);
+        System.out.println("Average waiting time: " + avgwaitingTime / size);
+    }
+
+    @Override
+    protected void calculateAndPrint(List<Process> ProcessList) {
+
     }
 }

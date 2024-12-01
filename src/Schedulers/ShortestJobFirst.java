@@ -1,10 +1,10 @@
 package Schedulers;
 
-import Processes;
+import Processes.Process;
 
 import java.util.List;
 
-public class ShortestJobFirst extends Scheduler{
+public class ShortestJobFirst extends Scheduler {
     public ShortestJobFirst(List<Process> ProcessList) {
         super(ProcessList);
     }
@@ -13,6 +13,7 @@ public class ShortestJobFirst extends Scheduler{
     public void run() {
 
     }
+
 
     @Override
     protected void calculateAndPrint(List<Process> ProcessList) {

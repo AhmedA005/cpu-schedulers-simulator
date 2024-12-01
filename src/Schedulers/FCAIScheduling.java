@@ -1,6 +1,7 @@
 package Schedulers;
 
 import Processes.FCAIProcess;
+import Processes.Process;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -8,11 +9,11 @@ import java.util.Iterator;
 import java.util.List;
 
 public class FCAIScheduling extends Scheduler {
-    List<FCAIProcess> finishedProcesses;
+    List<Process> finishedProcesses;
     List<FCAIProcess> readyQueue;
     int currentTime;
 
-    public FCAIScheduling(List<FCAIProcess> processList) {
+    public FCAIScheduling(List<Process> processList) {
         super(processList);
         this.finishedProcesses = new ArrayList<>();
         this.readyQueue = new ArrayList<>();
@@ -21,7 +22,7 @@ public class FCAIScheduling extends Scheduler {
 
     @Override
     public void run() {
-        processList.sort(Comparator.comparing(FCAIProcess::getArrivalTime));
+        processList.sort(Comparator.comparing(Process::getArrivalTime));
 
         while (!processList.isEmpty() || !readyQueue.isEmpty()) {
             addArrivedProcesses();
@@ -40,19 +41,23 @@ public class FCAIScheduling extends Scheduler {
     }
 
     @Override
-    public void calculateAndPrint(List<FCAIProcess> processList) {
+    protected void calculateAndPrint(List<Process> ProcessList) {
         System.out.println("FCAI Scheduling Results:");
         double totalWaitingTime = 0;
         double totalTurnaroundTime = 0;
 
-        for (FCAIProcess process : processList) {
-            int waitingTime = process.getLastFinishTime() - process.getArrivalTime() - process.getBurstTime();
-            int turnaroundTime = process.getLastFinishTime() - process.getArrivalTime();
+
+        for (Process process : finishedProcesses) {
+
+            FCAIProcess fcaiProcess = (FCAIProcess) process;
+            int wt = fcaiProcess.getLastFinishTime() - fcaiProcess.getArrivalTime() - fcaiProcess.getBurstTime();
+            int waitingTime = (((FCAIProcess) process).getLastFinishTime()) - process.getArrivalTime() - process.getBurstTime();
+            int turnaroundTime = ((FCAIProcess) process).getLastFinishTime() - process.getArrivalTime();
 
             System.out.println("Process: " + process.getName());
             System.out.println("Waiting Time: " + waitingTime);
             System.out.println("Turnaround Time: " + turnaroundTime);
-            System.out.println("Quantum History: " + process.getQuantumHistory());
+            System.out.println("Quantum History: " + ((FCAIProcess) process).getQuantumHistory());
             System.out.println();
 
             totalWaitingTime += waitingTime;
@@ -60,8 +65,9 @@ public class FCAIScheduling extends Scheduler {
 
         }
 
-        System.out.println("Average Waiting Time: " + totalWaitingTime / processList.size());
-        System.out.println("Average Turnaround Time: " + totalTurnaroundTime / processList.size());
+
+        System.out.println("Average Waiting Time: " + totalWaitingTime / finishedProcesses.size());
+        System.out.println("Average Turnaround Time: " + totalTurnaroundTime / finishedProcesses.size());
     }
 
     private void executeProcess(FCAIProcess currentProcess) {
@@ -120,11 +126,11 @@ public class FCAIScheduling extends Scheduler {
     }
 
     private void addArrivedProcesses() {
-        Iterator<FCAIProcess> iterator = processList.iterator();
+        Iterator<Process> iterator = processList.iterator();
         while (iterator.hasNext()) {
-            FCAIProcess process = iterator.next();
+            Process process = (FCAIProcess) iterator.next();
             if (process.getArrivalTime() <= currentTime) {
-                readyQueue.add(process);
+                readyQueue.add((FCAIProcess) process);
                 iterator.remove();
             }
         }
@@ -132,8 +138,8 @@ public class FCAIScheduling extends Scheduler {
 
 
     private double calculateFCAIFactor(FCAIProcess process) {
-        double V1 = processList.stream().mapToDouble(FCAIProcess::getArrivalTime).max().orElse(0) / 10;
-        double V2 = processList.stream().mapToDouble(FCAIProcess::getBurstTime).max().orElse(0) / 10;
+        double V1 = processList.stream().mapToDouble(Process::getArrivalTime).max().orElse(0) / 10;
+        double V2 = processList.stream().mapToDouble(Process::getBurstTime).max().orElse(0) / 10;
         return (10 - process.getPriority()) + ((double) process.getArrivalTime() / V1)
                 + ((double) process.getRemainingBurstTime() / V2);
     }

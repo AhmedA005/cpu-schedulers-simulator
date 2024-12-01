@@ -1,7 +1,6 @@
 package Schedulers;
 
-import Processes;
-
+import Processes.Process;
 import java.util.List;
 
 public abstract class Scheduler {
@@ -14,4 +13,5 @@ public abstract class Scheduler {
     public abstract void run();
 
     protected abstract void calculateAndPrint(List<Process> ProcessList);
+
 }
