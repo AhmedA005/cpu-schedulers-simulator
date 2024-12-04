@@ -35,10 +35,10 @@ public class ShortestRemainingTimeProcess extends Process{
     public void set_TurnaroundTime(int new_TurnaroundTime){ this.TurnaroundTime= new_TurnaroundTime;}
 
     public int get_TurnaroundTime(){ return TurnaroundTime;}
-    
+
     public int get_EffectiveBurstTime(int nowTime){
         int waitingTime2=nowTime-this.getArrivalTime();
-        if (waitingTime2 > 2*this.getBurstTime()) {
+        if (waitingTime2 > agingFactor) {
             return Math.max(1, this.getBurstTime() - agingFactor * waitingTime2);
         }
         return this.getBurstTime();
@@ -46,4 +46,3 @@ public class ShortestRemainingTimeProcess extends Process{
     public int getcontextSwitching(){ return contextSwitching;}
     public int getAgingFactor(){ return agingFactor;}
 }
-
