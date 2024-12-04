@@ -1,15 +1,24 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import Processes.PriorityProcess;
+import Processes.Process;
+import Schedulers.FCAIScheduling;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import Processes.FCAIProcess;
+import Schedulers.PriorityScheduling;
+
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        List<Process> FCAIProcesses = new ArrayList<>();
+        FCAIProcesses.add(new PriorityProcess("P1", 0, 17, 4, "red"));
+        FCAIProcesses.add(new PriorityProcess("P2", 3, 6, 9, "blue"));
+        FCAIProcesses.add(new PriorityProcess("P3", 4, 10, 3, "yellow"));
+        FCAIProcesses.add(new PriorityProcess("P4", 29, 4, 10, "white"));
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
-        }
+        FCAIScheduling scheduler = new FCAIScheduling(FCAIProcesses);
+        PriorityScheduling priorityScheduler = new PriorityScheduling(FCAIProcesses);
+        priorityScheduler.run();
+//        scheduler.run();
     }
 }
