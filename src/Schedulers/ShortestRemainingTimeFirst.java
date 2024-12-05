@@ -67,7 +67,7 @@ public class ShortestRemainingTimeFirst extends Scheduler {
 
                 if(startProcess.getBurstTime()==0){
                     startProcess.setState("Finished");
-                    startProcess.set_TurnaroundTime(nowTime-startProcess.getArrivalTime());//completion-arrival
+                    startProcess.set_TurnaroundTime(nowTime+ startProcess.getcontextSwitching()-startProcess.getArrivalTime());//completion-arrival
                     startProcess.set_WaitingTime(startProcess.get_TurnaroundTime()-startProcess.get_originalBurstTime());
                     processList.remove(startProcess);
                     arrivedList.remove(startProcess);
