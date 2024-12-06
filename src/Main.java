@@ -17,7 +17,7 @@ public class Main {
         FCAIProcesses.add(new PriorityProcess("P4", 10, 6, 3, "white"));
         FCAIProcesses.add(new PriorityProcess("P5", 12, 5, 4, "white"));
 
-        int contextSwitchTime = 5;
+        float contextSwitchTime = 5;
 
         FCAIScheduling scheduler = new FCAIScheduling(FCAIProcesses);
         PriorityScheduling priorityScheduler = new PriorityScheduling(FCAIProcesses, contextSwitchTime);
