@@ -14,9 +14,10 @@ public class PriorityScheduling extends Scheduler {
     int counter;
     float avgWaitingTime;
     float avgTurnaroundTime;
+    float contextSwitchTime;
 
 
-    public PriorityScheduling(List<Process> processList) {
+    public PriorityScheduling(List<Process> processList, int contextSwitchTime) {
         super(processList); // Initialize parent class's processList
         this.processList = processList; // Explicitly initialize shadowed field
         this.size = processList.size(); // Dynamically calculate size
@@ -24,6 +25,8 @@ public class PriorityScheduling extends Scheduler {
         this.counter = 0;
         this.avgWaitingTime = 0;
         finishedProcesses = new ArrayList<>();
+        this.avgTurnaroundTime = 0;
+        this.contextSwitchTime = contextSwitchTime;
     }
 
 
@@ -35,7 +38,7 @@ public class PriorityScheduling extends Scheduler {
                 PriorityProcess p = (PriorityProcess) process;
                 if (p.getArrivalTime() <= time) {
                     flag = true;
-                    time++;
+                    time+= contextSwitchTime;
                     p.setTotalWaitingTime(time - p.getArrivalTime());
                     avgWaitingTime += p.getTotalWaitingTime();
                     time += p.getBurstTime();
