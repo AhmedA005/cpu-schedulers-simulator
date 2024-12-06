@@ -5,7 +5,7 @@ public class ShortestRemainingTimeProcess extends Process{
     String state;
     int waitingTime=0;
     int TurnaroundTime=0;
-    int agingFactor=10;
+    int agingFactor=20;
     int contextSwitching;
     int originalBurstTime;
 
@@ -36,12 +36,12 @@ public class ShortestRemainingTimeProcess extends Process{
 
     public int get_TurnaroundTime(){ return TurnaroundTime;}
 
-    public int get_EffectiveBurstTime(int nowTime){
+    public ShortestRemainingTimeProcess starvedProcess(int nowTime){
         int waitingTime2=nowTime-this.getArrivalTime();
-        if (waitingTime2 > agingFactor) {
-            return Math.max(1, this.getBurstTime() - agingFactor * waitingTime2);
+        if (waitingTime2 >= agingFactor) {
+            return this;
         }
-        return this.getBurstTime();
+        return null;
     }
     public int getcontextSwitching(){ return contextSwitching;}
     public int getAgingFactor(){ return agingFactor;}
