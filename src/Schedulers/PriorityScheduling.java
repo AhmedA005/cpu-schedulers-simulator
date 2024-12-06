@@ -17,7 +17,7 @@ public class PriorityScheduling extends Scheduler {
     float contextSwitchTime;
 
 
-    public PriorityScheduling(List<Process> processList, int contextSwitchTime) {
+    public PriorityScheduling(List<Process> processList, float contextSwitchTime) {
         super(processList); // Initialize parent class's processList
         this.processList = processList; // Explicitly initialize shadowed field
         this.size = processList.size(); // Dynamically calculate size
