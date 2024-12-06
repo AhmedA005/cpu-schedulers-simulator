@@ -12,11 +12,13 @@ import static java.lang.Math.ceil;
 public class ShortestRemainingTimeFirst extends Scheduler {
     List<ShortestRemainingTimeProcess> arrivedList;
     List<ShortestRemainingTimeProcess> tempList;
+    List<ShortestRemainingTimeProcess> executionList;
 
     public ShortestRemainingTimeFirst(List<Process> ProcessList) {
         super(ProcessList);
         this.arrivedList= new ArrayList<>();
         this.tempList= new ArrayList<>();
+        this.executionList= new ArrayList<>();
 
     }
     @Override
@@ -26,16 +28,15 @@ public class ShortestRemainingTimeFirst extends Scheduler {
         ShortestRemainingTimeProcess startProcess = null;
         ShortestRemainingTimeProcess firstArrive=null;
         ShortestRemainingTimeProcess currentProcess = null;
-        int agingFactor=10;
-
+        int agingFactor=20;
+        boolean switched=false;
         for(int i=0; i< processList.size();i++){
             tempList.add((ShortestRemainingTimeProcess) processList.get(i));
             ((ShortestRemainingTimeProcess) processList.get(i)).set_originalBurstTime(((ShortestRemainingTimeProcess) processList.get(i)).getBurstTime());
         }
 
         while(!processList.isEmpty()){
-
-            boolean switched=false;
+            switched=false;
             for(int i=0; i< processList.size();i++){
                 firstArrive= (ShortestRemainingTimeProcess) processList.get(i);
                 if(firstArrive.getArrivalTime()<=nowTime && !arrivedList.contains(firstArrive)){
@@ -43,22 +44,16 @@ public class ShortestRemainingTimeFirst extends Scheduler {
                 }
             }
 
-            startProcess=toStartMinProcess(arrivedList, nowTime);
-
+            startProcess=toStartMinProcess(arrivedList,nowTime);
+            executionList.add(startProcess);
+            
             if(startProcess!= null){
-
                 if(currentProcess != startProcess){
                     if (currentProcess != null) {
                         nowTime += startProcess.getcontextSwitching();
                         switched=true;
                     }
                     currentProcess = startProcess;
-                    for( ShortestRemainingTimeProcess process: arrivedList) {
-                        if(!process.equals(startProcess)) {
-                            process.setState("waiting");
-                            process.incrementWaitingTime();
-                        }
-                    }
 
                 }
                 startProcessFunction(startProcess);
@@ -79,23 +74,35 @@ public class ShortestRemainingTimeFirst extends Scheduler {
             }
 
         }
+        for (int i=0; i< executionList.size();i++) {
+            if(i==executionList.size()-1){
+                System.out.print(executionList.get(i).getName());
+            }else{
+                System.out.print(executionList.get(i).getName() + "-> " );
+            }
+
+        }
+        System.out.println (" ");
         calculateAndPrint(processList);
 
     }
-
     public ShortestRemainingTimeProcess toStartMinProcess(List<ShortestRemainingTimeProcess> FindMin , int now_time){
         int min_time=Integer.MAX_VALUE;
         int Minburst_time=0;
-        ShortestRemainingTimeProcess toStartProcess = null;
         ShortestRemainingTimeProcess FinaltoStartProcess = null;
 
         for (ShortestRemainingTimeProcess shortestRemainingTimeProcess : FindMin) {
-            toStartProcess = shortestRemainingTimeProcess;
-            Minburst_time = toStartProcess.get_EffectiveBurstTime(now_time);
-            if (Minburst_time<min_time) {
-                min_time = Minburst_time;
-                FinaltoStartProcess = toStartProcess;
+            ShortestRemainingTimeProcess ifStarved = shortestRemainingTimeProcess.starvedProcess(now_time);
+            if(ifStarved!=null){
+                return ifStarved;
+            }else{
+                Minburst_time=shortestRemainingTimeProcess.getBurstTime();
+                if (Minburst_time<min_time) {
+                    min_time = Minburst_time;
+                    FinaltoStartProcess = shortestRemainingTimeProcess;
+                }
             }
+
         }
         return FinaltoStartProcess;
     }
