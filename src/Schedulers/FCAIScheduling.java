@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class FCAIScheduling extends Scheduler {
-    private List<String> executionTimeline = new ArrayList<>();
+
     List<Process> finishedProcesses;
     List<FCAIProcess> readyQueue;
     List<Process> copyProcessList;
@@ -27,6 +27,9 @@ public class FCAIScheduling extends Scheduler {
         this.currentTime = 0;
         this.V1 = processList.stream().mapToDouble(Process::getArrivalTime).max().orElse(0) / 10;
         this.V2 = processList.stream().mapToDouble(Process::getBurstTime).max().orElse(0) / 10;
+    }
+    public List<Process> getFinishedProcesses() {
+        return finishedProcesses;
     }
 
     @Override
@@ -131,6 +134,7 @@ public class FCAIScheduling extends Scheduler {
                 currentProcess.getName() + " completes quantum");
 
         currentProcess.setPreempted(false);
+        // Update quantum and handle process disposition
         updateProcessQuantum(currentProcess, executedTime);
 
         if (currentProcess.getRemainingBurstTime() > 0) {
@@ -139,7 +143,6 @@ public class FCAIScheduling extends Scheduler {
             finishedProcesses.add(currentProcess);
         }
     }
-
 
     private void updateProcessQuantum(FCAIProcess currentProcess, int executedTime) {
         if (currentProcess.getRemainingBurstTime() > 0) {
