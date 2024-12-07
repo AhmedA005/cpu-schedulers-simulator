@@ -191,8 +191,11 @@ public class FCAIGUI extends JFrame {
                 case "red": label.setBackground(Color.RED); break;
                 case "blue": label.setBackground(Color.BLUE); break;
                 case "yellow": label.setBackground(Color.YELLOW); break;
+                case "green": label.setBackground(Color.green); break;
+                case "cyan": label.setBackground(Color.cyan); break;
+                case "magenta": label.setBackground(Color.magenta); break;
                 case "white": label.setBackground(Color.WHITE); break;
-                default: label.setBackground(Color.GRAY); break;
+                default: label.setBackground(Color.ORANGE); break;
             }
 
             label.setBounds(currentX, currentY, width, 30); // Set position
