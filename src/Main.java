@@ -12,30 +12,21 @@ import Schedulers.PriorityScheduling;
 
 public class Main {
     public static void main(String[] args) {
-        List<Process> FCAIProcesses = new ArrayList<>();
-        FCAIProcesses.add(new PriorityProcess("P1", 0, 4, 0, "red"));
-        FCAIProcesses.add(new PriorityProcess("P2", 1, 8, 1, "blue"));
-        FCAIProcesses.add(new PriorityProcess("P3", 3, 2, 2, "yellow"));
-        FCAIProcesses.add(new PriorityProcess("P4", 10, 6, 3, "white"));
-        FCAIProcesses.add(new PriorityProcess("P5", 12, 5, 4, "white"));
+        List<Processes.Process> PriorityProcesses = new ArrayList<>();
+        PriorityProcesses.add(new ShortestJobFirstProcess("P1", 0, 4, 0, "red"));
+        PriorityProcesses.add(new ShortestJobFirstProcess("P2", 1, 8, 1, "blue"));
+        PriorityProcesses.add(new ShortestJobFirstProcess("P3", 3, 2, 2, "yellow"));
+        /*PriorityProcesses.add(new PriorityProcess("P4", 10, 6, 3, "white"));
+        PriorityProcesses.add(new PriorityProcess("P5", 12, 5, 4, "white"));
+        PriorityProcesses.add(new PriorityProcess("P1", 0, 4, 0, "red"));
+        PriorityProcesses.add(new PriorityProcess("P2", 1, 8, 1, "blue"));
+        PriorityProcesses.add(new PriorityProcess("P3", 3, 2, 2, "yellow"));
+        PriorityProcesses.add(new PriorityProcess("P4", 10, 6, 3, "white"));
+        PriorityProcesses.add(new PriorityProcess("P5", 12, 5, 4, "white"));*/
 
-//        int contextSwitchTime = 5;
         float contextSwitchTime = 5;
 
-        FCAIScheduling scheduler = new FCAIScheduling(FCAIProcesses);
-        PriorityScheduling priorityScheduler = new PriorityScheduling(FCAIProcesses, contextSwitchTime);
+        ShortestJobFirst priorityScheduler = new ShortestJobFirst(PriorityProcesses);
         priorityScheduler.run();
-//        scheduler.run();
-
-        List<Process> FCAIProcesses2 = new ArrayList<>();
-        FCAIProcesses2.add(new ShortestJobFirstProcess("P1", 2, 17, 4, "red"));
-        FCAIProcesses2.add(new ShortestJobFirstProcess("P2", 1, 17, 9, "blue"));
-        FCAIProcesses2.add(new ShortestJobFirstProcess("P3", 0, 15, 3, "yellow"));
-        FCAIProcesses2.add(new ShortestJobFirstProcess("P4", 2, 4, 10, "white"));
-
-        ShortestJobFirst scheduler2 = new ShortestJobFirst(FCAIProcesses);
-        scheduler2.run();
-        scheduler2.cap();
-
     }
 }

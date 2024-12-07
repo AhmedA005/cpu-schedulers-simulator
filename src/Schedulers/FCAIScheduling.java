@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class FCAIScheduling extends Scheduler {
-    List<Process> finishedProcesses;
+    public List<Process> finishedProcesses;
     List<FCAIProcess> readyQueue;
     List<Process> copyProcessList;
     int currentTime;

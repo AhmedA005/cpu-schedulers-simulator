@@ -10,8 +10,10 @@ import java.util.SortedMap;
 
 public class ShortestJobFirst extends Scheduler {
     private int currentTime = 0;
+    double averageWaitingTime;
+    double averageTurnAroundTime;
 
-    private List<ShortestJobFirstProcess> finishedProcesses = new ArrayList<>();
+    public List<Processes.Process> finishedProcesses = new ArrayList<>();
 
     public ShortestJobFirst(List<Process> ProcessList) {
         super(ProcessList);
@@ -68,6 +70,7 @@ public class ShortestJobFirst extends Scheduler {
         }
         System.out.println(p.getName() + " " + p.getArrivalTime() + " " + p.getBurstTime());
         }
+        calculateAndPrint(finishedProcesses);
     }
 
 
@@ -77,18 +80,25 @@ public class ShortestJobFirst extends Scheduler {
         double totalTurnAroundTime = 0;
         int count = 0;
         System.out.println("Process #  " + " Name " +" Waiting Time " + " Turn Around Time ");
-        for (ShortestJobFirstProcess p : finishedProcesses) {
-            totalWaitingTime += p.getWaitingTime();
-            totalTurnAroundTime += p.getTurnAroundTime();
-            System.out.println(count + "\t\t\t" +p.getName() + "\t\t\t" + p.getWaitingTime() + "\t\t\t" + p.getTurnAroundTime());
+        for (Processes.Process p : finishedProcesses) {
+            totalWaitingTime += ((ShortestJobFirstProcess) p).getWaitingTime();
+            totalTurnAroundTime += ((ShortestJobFirstProcess) p).getTurnAroundTime();
+            System.out.println(count + "\t\t\t" +p.getName() + "\t\t\t" + ((ShortestJobFirstProcess) p).getWaitingTime() + "\t\t\t" + ((ShortestJobFirstProcess) p).getTurnAroundTime());
             count++;
         }
-        double averageWaitingTime = totalWaitingTime / finishedProcesses.size();
-        double averageTurnAroundTime = totalTurnAroundTime / finishedProcesses.size();
+         averageWaitingTime = totalWaitingTime / finishedProcesses.size();
+         averageTurnAroundTime = totalTurnAroundTime / finishedProcesses.size();
         System.out.println("Average waiting time : " + averageWaitingTime);
         System.out.println("Average turn around time : " + averageTurnAroundTime);
     }
     public void cap(){
         calculateAndPrint(processList);
+    }
+
+    public double getAverageWaitingTime() {
+        return averageWaitingTime;
+    }
+    public double getAverageTurnAroundTime() {
+        return averageTurnAroundTime;
     }
 }
