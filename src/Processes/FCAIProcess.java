@@ -58,5 +58,6 @@ public class FCAIProcess extends Process {
     public void setFinalFinishTime(int finalFinishTime) {
         this.finalFinishTime = finalFinishTime;
     }
+
 }
 

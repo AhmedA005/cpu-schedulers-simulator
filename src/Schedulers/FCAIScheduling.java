@@ -9,9 +9,11 @@ import java.util.Iterator;
 import java.util.List;
 
 public class FCAIScheduling extends Scheduler {
+    private List<String> executionTimeline = new ArrayList<>();
     List<Process> finishedProcesses;
     List<FCAIProcess> readyQueue;
     List<Process> copyProcessList;
+    List<String> executionOrder;
     int currentTime;
     double V1;
     double V2;
@@ -21,6 +23,7 @@ public class FCAIScheduling extends Scheduler {
         this.copyProcessList = new ArrayList<>(processList);
         this.finishedProcesses = new ArrayList<>();
         this.readyQueue = new ArrayList<>();
+        this.executionOrder = new ArrayList<>();
         this.currentTime = 0;
         this.V1 = processList.stream().mapToDouble(Process::getArrivalTime).max().orElse(0) / 10;
         this.V2 = processList.stream().mapToDouble(Process::getBurstTime).max().orElse(0) / 10;
@@ -50,9 +53,12 @@ public class FCAIScheduling extends Scheduler {
         System.out.println("FCAI Scheduling Results:");
         double totalWaitingTime = 0;
         double totalTurnaroundTime = 0;
-
+        System.out.println(executionOrder);
+        System.out.println();
+        finishedProcesses.sort(Comparator.comparing(Process::getArrivalTime));
 
         for (Process process : finishedProcesses) {
+
             int waitingTime = (((FCAIProcess) process).getFinalFinishTime()) - process.getArrivalTime() - process.getBurstTime();
             int turnaroundTime = ((FCAIProcess) process).getFinalFinishTime() - process.getArrivalTime();
 
@@ -60,10 +66,10 @@ public class FCAIScheduling extends Scheduler {
             System.out.println("Waiting Time: " + waitingTime);
             System.out.println("Turnaround Time: " + turnaroundTime);
             System.out.println("Quantum History: " + ((FCAIProcess) process).getQuantumHistory());
-            System.out.println();
 
             totalWaitingTime += waitingTime;
             totalTurnaroundTime += turnaroundTime;
+            System.out.println();
 
         }
 
@@ -76,46 +82,55 @@ public class FCAIScheduling extends Scheduler {
         int nonPreemptiveTime = (int) Math.ceil(0.4 * currentProcess.getQuantum());
         int execTime = Math.min(currentProcess.getRemainingBurstTime(), currentProcess.getQuantum());
         int executedTime = 0;
+        int startTime = currentTime; // Mark the start time of execution
 
-        // Execute the process, checking for preemption at each step
+        executionOrder.add(currentProcess.getName());
+
+        // Execute the process in its quantum
         while (executedTime < execTime) {
-            // Check if we're past the non-preemptive period
             boolean isPastNonPreemptivePeriod = executedTime >= nonPreemptiveTime;
 
-            // Check if there's a better process in the queue
+            // Check for preemption
             FCAIProcess betterProcess = checkBetterProcess(currentProcess);
-            boolean shouldPreempt = !readyQueue.isEmpty() &&
-                    isPastNonPreemptivePeriod &&
+            boolean shouldPreempt = isPastNonPreemptivePeriod &&
+                    !readyQueue.isEmpty() &&
                     betterProcess != null;
 
             if (shouldPreempt) {
-                // Preempt the current process
+                logExecution(startTime, currentTime, currentProcess, executedTime,
+                        currentProcess.getName() + " preempted by " + betterProcess.getName());
+
                 currentProcess.setPreempted(true);
-                readyQueue.remove(betterProcess);
-                readyQueue.addFirst(betterProcess);
                 updateProcessQuantum(currentProcess, executedTime);
                 readyQueue.add(currentProcess);
+                readyQueue.remove(betterProcess);
+                readyQueue.addFirst(betterProcess);
                 return;
             }
 
-            // Execute for 1 time unit
+            // Execute for 1 unit of time
             currentProcess.execute(1);
             currentTime++;
             executedTime++;
 
-            // Break if process is complete
+            // If process completes, log and return
             if (currentProcess.getRemainingBurstTime() <= 0) {
-                currentProcess.setPreempted(false);
+                logExecution(startTime, currentTime, currentProcess, executedTime,
+                        currentProcess.getName() + " completes execution");
+
                 currentProcess.setFinalFinishTime(currentTime);
                 finishedProcesses.add(currentProcess);
                 return;
             }
-            addArrivedProcesses();
 
+            addArrivedProcesses();
         }
 
+        // Log the end of quantum with start and end time
+        logExecution(startTime, currentTime, currentProcess, executedTime,
+                currentProcess.getName() + " completes quantum");
+
         currentProcess.setPreempted(false);
-        // Update quantum and handle process disposition
         updateProcessQuantum(currentProcess, executedTime);
 
         if (currentProcess.getRemainingBurstTime() > 0) {
@@ -124,6 +139,7 @@ public class FCAIScheduling extends Scheduler {
             finishedProcesses.add(currentProcess);
         }
     }
+
 
     private void updateProcessQuantum(FCAIProcess currentProcess, int executedTime) {
         if (currentProcess.getRemainingBurstTime() > 0) {
@@ -162,4 +178,25 @@ public class FCAIScheduling extends Scheduler {
         }
         return bestProcess;
     }
+
+    private boolean headerPrinted = false;
+
+    private void logExecution(int startTime, int endTime, FCAIProcess currentProcess, int executedTime, String action) {
+        double fcaiFactor = Math.ceil(calculateFCAIFactor(currentProcess));
+
+        if (!headerPrinted) {
+            System.out.printf("%-8s %-8s %-14s %-18s %-14s %-10s %-12s %-30s\n",
+                    "Time", "Process", "Executed Time", "Remaining Burst Time",
+                    "Updated Quantum", "Priority", "FCAI Factor", "Action - Details");
+            headerPrinted = true;
+        }
+
+        // Print process details
+        System.out.printf("%-8s %-12s %-14d %-18d %-14d %-10d %-16s %-35s\n",
+                startTime + "->" + endTime, currentProcess.getName(), executedTime,
+                currentProcess.getRemainingBurstTime(), currentProcess.getQuantum(),
+                currentProcess.getPriority(), fcaiFactor, action);
+    }
+
+
 }
