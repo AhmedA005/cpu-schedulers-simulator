@@ -160,11 +160,11 @@ public class SRTFGUI extends JFrame {
         ganttChartPanel.removeAll();
         ganttChartPanel.setLayout(null);
 
-        int currentY = 20; // Start position for the first process (vertical position)
-        int currentX = 10; // Start position for the first process (horizontal position)
-        int scaleFactor = 20; // Scale factor to adjust the width of each process based on burst time
-        int lineHeight = 50; // Height of each line (row) where a process will be placed
-        int panelWidth = 800; // Width of the panel (you can adjust this as needed)
+        int currentY = 20; 
+        int currentX = 10; 
+        int scaleFactor = 20; 
+        int lineHeight = 50; 
+        int panelWidth = 800; 
 
         for (ShortestRemainingTimeProcess process : executionList) {
             int duration = process.get_originalBurstTime();
@@ -189,16 +189,14 @@ public class SRTFGUI extends JFrame {
 
 
         if (currentX > panelWidth) {
-            currentX = 10; // Reset X to start from the left again
-            currentY += lineHeight + 10; // Move to the next row (next Y position)
+            currentX = 10;
+            currentY += lineHeight + 10;
         }
     }
 
-    // Dynamically adjust the panel height based on the number of rows
-    int totalHeight = currentY + lineHeight; // Calculate the height of the panel based on the processes
-        ganttChartPanel.setPreferredSize(new Dimension(panelWidth, totalHeight)); // Set the height dynamically
 
-    // Revalidate and repaint to apply changes
+    int totalHeight = currentY + lineHeight; 
+        ganttChartPanel.setPreferredSize(new Dimension(panelWidth, totalHeight));
         ganttChartPanel.revalidate();
         ganttChartPanel.repaint();
     }
