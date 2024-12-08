@@ -2,16 +2,14 @@ package Processes;
 
 public class ShortestRemainingTimeProcess extends Process{
 
-    String state;
     int waitingTime=0;
     int TurnaroundTime=0;
     int agingFactor=20;
     int contextSwitching;
     int originalBurstTime;
 
-    public ShortestRemainingTimeProcess(String name, int arrivalTime, int burstTime, int priority, String color, int contextSwitching, String state) {
+    public ShortestRemainingTimeProcess(String name, int arrivalTime, int burstTime, int priority, String color, int contextSwitching) {
         super(name, arrivalTime, burstTime, priority, color);
-        this.state=state;
         this.contextSwitching=contextSwitching;
 
     }
@@ -21,9 +19,7 @@ public class ShortestRemainingTimeProcess extends Process{
     public void set_originalBurstTime(int new_originalBurstTime){
         this.originalBurstTime=new_originalBurstTime;
     }
-    public String getState(){ return state;}
 
-    public void setState(String newState){ this.state= newState;}
 
     public void decrementBurstTime(){ this.burstTime--;}
 
@@ -46,3 +42,4 @@ public class ShortestRemainingTimeProcess extends Process{
     public int getcontextSwitching(){ return contextSwitching;}
     public int getAgingFactor(){ return agingFactor;}
 }
+
