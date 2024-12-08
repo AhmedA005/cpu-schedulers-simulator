@@ -8,7 +8,23 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import static java.lang.Math.ceil;
+
+
 public class FCAIScheduling extends Scheduler {
+    class comp implements Comparator<Process> {
+
+        @Override
+        public int compare(Process o1, Process o2) {
+            int primary = o1.getArrivalTime() - o2.getArrivalTime();
+            if (primary != 0) {
+                return primary;
+            }
+            double factor1 = ceil(calculateFCAIFactor((FCAIProcess) o1));
+            double factor2 = ceil(calculateFCAIFactor((FCAIProcess) o2));
+            return (int) (factor1 - factor2);
+        }
+    }
 
     List<Process> finishedProcesses;
     List<FCAIProcess> readyQueue;
@@ -28,13 +44,14 @@ public class FCAIScheduling extends Scheduler {
         this.V1 = processList.stream().mapToDouble(Process::getArrivalTime).max().orElse(0) / 10;
         this.V2 = processList.stream().mapToDouble(Process::getBurstTime).max().orElse(0) / 10;
     }
+
     public List<Process> getFinishedProcesses() {
         return finishedProcesses;
     }
 
     @Override
     public void run() {
-        processList.sort(Comparator.comparing(Process::getArrivalTime));
+        copyProcessList.sort(new comp());
 
         while (!copyProcessList.isEmpty() || !readyQueue.isEmpty()) {
             addArrivedProcesses();
@@ -82,7 +99,7 @@ public class FCAIScheduling extends Scheduler {
     }
 
     private void executeProcess(FCAIProcess currentProcess) {
-        int nonPreemptiveTime = (int) Math.ceil(0.4 * currentProcess.getQuantum());
+        int nonPreemptiveTime = (int) ceil(0.4 * currentProcess.getQuantum());
         int execTime = Math.min(currentProcess.getRemainingBurstTime(), currentProcess.getQuantum());
         int executedTime = 0;
         int startTime = currentTime; // Mark the start time of execution
@@ -159,7 +176,6 @@ public class FCAIScheduling extends Scheduler {
             Process process = iterator.next();
             if (process.getArrivalTime() <= currentTime) {
                 readyQueue.add((FCAIProcess) process);
-
                 iterator.remove();
             }
         }
@@ -167,14 +183,15 @@ public class FCAIScheduling extends Scheduler {
 
 
     private double calculateFCAIFactor(FCAIProcess process) {
-        return (10 - process.getPriority()) + ((double) process.getArrivalTime() / V1)
-                + ((double) process.getRemainingBurstTime() / V2);
+        return (10 - process.getPriority()) + ceil(((double) process.getArrivalTime() / V1))
+                + ceil(((double) process.getRemainingBurstTime() / V2));
     }
 
     private FCAIProcess checkBetterProcess(FCAIProcess currentProcess) {
         FCAIProcess bestProcess = null;
         for (FCAIProcess process : readyQueue) {
-            if (process != currentProcess && calculateFCAIFactor(process) < calculateFCAIFactor(currentProcess)) {
+            if (process != currentProcess && (calculateFCAIFactor(process) < calculateFCAIFactor(currentProcess)
+                    || (calculateFCAIFactor(process) == calculateFCAIFactor(currentProcess) && process.getArrivalTime() < currentProcess.getArrivalTime()))) {
                 bestProcess = process;
                 currentProcess = process;
             }
@@ -185,7 +202,7 @@ public class FCAIScheduling extends Scheduler {
     private boolean headerPrinted = false;
 
     private void logExecution(int startTime, int endTime, FCAIProcess currentProcess, int executedTime, String action) {
-        double fcaiFactor = Math.ceil(calculateFCAIFactor(currentProcess));
+        double fcaiFactor = ceil(calculateFCAIFactor(currentProcess));
 
         if (!headerPrinted) {
             System.out.printf("%-8s %-8s %-14s %-18s %-14s %-10s %-12s %-30s\n",
@@ -200,6 +217,4 @@ public class FCAIScheduling extends Scheduler {
                 currentProcess.getRemainingBurstTime(), currentProcess.getQuantum(),
                 currentProcess.getPriority(), fcaiFactor, action);
     }
-
-
 }
