@@ -11,8 +11,8 @@ import static java.lang.Math.ceil;
 
 public class ShortestRemainingTimeFirst extends Scheduler {
     List<ShortestRemainingTimeProcess> arrivedList;
-    List<ShortestRemainingTimeProcess> tempList;
-    List<ShortestRemainingTimeProcess> executionList;
+    public List<ShortestRemainingTimeProcess> tempList;
+    public List<ShortestRemainingTimeProcess> executionList;
 
     public ShortestRemainingTimeFirst(List<Process> ProcessList) {
         super(ProcessList);
@@ -56,12 +56,10 @@ public class ShortestRemainingTimeFirst extends Scheduler {
                     currentProcess = startProcess;
 
                 }
-                startProcessFunction(startProcess);
                 nowTime++;
                 startProcess.decrementBurstTime();
 
                 if(startProcess.getBurstTime()==0){
-                    startProcess.setState("Finished");
                     startProcess.set_TurnaroundTime(nowTime+ startProcess.getcontextSwitching()-startProcess.getArrivalTime());//completion-arrival
                     startProcess.set_WaitingTime(startProcess.get_TurnaroundTime()-startProcess.get_originalBurstTime());
                     processList.remove(startProcess);
@@ -108,9 +106,7 @@ public class ShortestRemainingTimeFirst extends Scheduler {
     }
 
 
-    public void startProcessFunction(ShortestRemainingTimeProcess process_toStart){
-        process_toStart.setState("start");
-    }
+
 
     @Override
     protected void calculateAndPrint(List<Process> processList) {
@@ -137,6 +133,7 @@ public class ShortestRemainingTimeFirst extends Scheduler {
         averageTurnaroundTime=(int) ceil(totalTurnaroundTime/tempList.size());
         System.out.println("Average waiting time = " + averageWaitingTime);
         System.out.println("Average Turnaround time = " + averageTurnaroundTime);
+
 
     }
 }
