@@ -165,7 +165,7 @@ public class SRTFGUI extends JFrame {
         int scaleFactor = 20;
 
         for (ShortestRemainingTimeProcess process : executionList) {
-            int duration = process.get_originalBurstTime(); // Reflects original burst time
+            int duration = process.get_originalBurstTime();
             JLabel label = new JLabel(process.getName(), SwingConstants.CENTER);
             label.setOpaque(true);
 
@@ -183,7 +183,7 @@ public class SRTFGUI extends JFrame {
             label.setBounds(currentX, currentY, duration * scaleFactor, 30);
 
             ganttChartPanel.add(label);
-            currentX += duration * scaleFactor + 5; // Add space between process bars
+            currentX += duration * scaleFactor + 5;
         }
 
         ganttChartPanel.revalidate();
