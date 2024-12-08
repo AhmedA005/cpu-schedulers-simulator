@@ -129,21 +129,19 @@ public class SRTFGUI extends JFrame {
         try {
             ShortestRemainingTimeFirst scheduler = new ShortestRemainingTimeFirst(processList);
             scheduler.run();
+            double totalWaitingTime=0;
+            double totalTurnaroundTime=0;
 
             outputArea.append("\nScheduling Results:\n");
-            for (Processes.Process p : scheduler.tempList) {
-                ShortestRemainingTimeProcess pp = (ShortestRemainingTimeProcess) p;
+            for (ShortestRemainingTimeProcess pp : scheduler.tempList) {
+
                 outputArea.append("Process: " + pp.getName() +
                         ", Waiting Time: " + pp.getWaitingTime() +
                         ", Turnaround Time: " + pp.get_TurnaroundTime() + "\n");
+                totalWaitingTime += pp.getWaitingTime();
+                totalTurnaroundTime+=pp.get_TurnaroundTime();
             }
-            int totalWaitingTime=0;
-            int totalTurnaroundTime=0;
 
-            for (ShortestRemainingTimeProcess process : scheduler.tempList) {
-                totalWaitingTime += process.getWaitingTime();
-                totalTurnaroundTime+=process.get_TurnaroundTime();
-            }
 
             double averageWaitingTime= (int) ceil(totalWaitingTime/scheduler.tempList.size());
             double averageTurnaroundTime=(int) ceil(totalTurnaroundTime/scheduler.tempList.size());
@@ -160,16 +158,19 @@ public class SRTFGUI extends JFrame {
         ganttChartPanel.removeAll();
         ganttChartPanel.setLayout(null);
 
-        int currentY = 20; 
-        int currentX = 10; 
-        int scaleFactor = 20; 
-        int lineHeight = 50; 
-        int panelWidth = 800; 
+        int currentY = 20;
+        int currentX = 10;
+        int scaleFactor = 20;
+        int lineHeight = 50;
+        int panelWidth = 800;
 
         for (ShortestRemainingTimeProcess process : executionList) {
-            int duration = process.get_originalBurstTime();
+            int width = process.get_originalBurstTime() * scaleFactor;
+
             JLabel label = new JLabel(process.getName(), SwingConstants.CENTER);
             label.setOpaque(true);
+
+
 
             switch (process.getColor().toLowerCase()) {
                 case "red": label.setBackground(Color.RED); break;
@@ -182,10 +183,10 @@ public class SRTFGUI extends JFrame {
                 default: label.setBackground(Color.ORANGE); break;
             }
 
-            label.setBounds(currentX, currentY, duration * scaleFactor, 30);
+            label.setBounds(currentX, currentY, width , 30);
 
             ganttChartPanel.add(label);
-            currentX += duration * scaleFactor + 5; // Add space between process bars
+            currentX += width + 5;
 
 
         if (currentX > panelWidth) {
@@ -195,8 +196,10 @@ public class SRTFGUI extends JFrame {
     }
 
 
-    int totalHeight = currentY + lineHeight; 
+    int totalHeight = currentY + lineHeight;
         ganttChartPanel.setPreferredSize(new Dimension(panelWidth, totalHeight));
+
+    // Revalidate and repaint to apply changes
         ganttChartPanel.revalidate();
         ganttChartPanel.repaint();
     }
