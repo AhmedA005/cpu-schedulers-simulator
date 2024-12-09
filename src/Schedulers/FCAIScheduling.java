@@ -15,13 +15,13 @@ public class FCAIScheduling extends Scheduler {
     class comp implements Comparator<Process> {
 
         @Override
-        public int compare(Process o1, Process o2) {
-            int primary = o1.getArrivalTime() - o2.getArrivalTime();
+        public int compare(Process p1, Process p2) {
+            int primary = p1.getArrivalTime() - p2.getArrivalTime();
             if (primary != 0) {
                 return primary;
             }
-            double factor1 = ceil(calculateFCAIFactor((FCAIProcess) o1));
-            double factor2 = ceil(calculateFCAIFactor((FCAIProcess) o2));
+            double factor1 = ceil(calculateFCAIFactor((FCAIProcess) p1));
+            double factor2 = ceil(calculateFCAIFactor((FCAIProcess) p2));
             return (int) (factor1 - factor2);
         }
     }
@@ -29,6 +29,12 @@ public class FCAIScheduling extends Scheduler {
     List<Process> finishedProcesses;
     List<FCAIProcess> readyQueue;
     List<Process> copyProcessList;
+
+    public List<Process> getProcessExeutionOrder() {
+        return processExeutionOrder;
+    }
+
+    List<Process> processExeutionOrder;
     List<String> executionOrder;
     int currentTime;
     double V1;
@@ -40,6 +46,7 @@ public class FCAIScheduling extends Scheduler {
         this.finishedProcesses = new ArrayList<>();
         this.readyQueue = new ArrayList<>();
         this.executionOrder = new ArrayList<>();
+        this.processExeutionOrder = new ArrayList<>();
         this.currentTime = 0;
         this.V1 = processList.stream().mapToDouble(Process::getArrivalTime).max().orElse(0) / 10;
         this.V2 = processList.stream().mapToDouble(Process::getBurstTime).max().orElse(0) / 10;
@@ -62,11 +69,36 @@ public class FCAIScheduling extends Scheduler {
             }
 
             FCAIProcess currentProcess = readyQueue.removeFirst();
-
+            processExeutionOrder.add(currentProcess);
             executeProcess(currentProcess);
         }
         calculateAndPrint(finishedProcesses);
     }
+
+    public boolean runScheduler() {
+        try {
+            copyProcessList.sort(new comp());
+
+            while (!copyProcessList.isEmpty() || !readyQueue.isEmpty()) {
+                addArrivedProcesses();
+
+                if (readyQueue.isEmpty()) {
+                    currentTime++;
+                    continue;
+                }
+
+                FCAIProcess currentProcess = readyQueue.removeFirst();
+                executeProcess(currentProcess);
+            }
+
+            calculateAndPrint(finishedProcesses);
+            return true; // Success
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false; // Failure
+        }
+    }
+
 
     @Override
     protected void calculateAndPrint(List<Process> ProcessList) {
