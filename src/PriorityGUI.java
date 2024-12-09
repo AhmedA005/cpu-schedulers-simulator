@@ -4,71 +4,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 import Processes.PriorityProcess;
+import Processes.Process;
 import Schedulers.PriorityScheduling;
 
 public class PriorityGUI extends JFrame {
-    private JTextField nameField, priorityField, arrivalField, burstField, colorField, contextSwitchField;
     private JTextArea outputArea;
     private JPanel ganttChartPanel;
-    private List<Processes.Process> processList;
+    List<Processes.Process> processList;
 
-    public PriorityGUI() {
-        // Initialize Process List
-        processList = new ArrayList<>();
-
-        // Frame Configurationz
-        setTitle("CPU Scheduler Simulator");
+    public PriorityGUI(List<Processes.Process> processList, int contextSwitchTime) {
+        this.processList = processList;
+        setTitle("Priority Scheduler Simulator");
         setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
 
-        // Panels for Layout
-        JPanel inputPanel = createInputPanel();
+        // Create output and control panels
         JPanel outputPanel = createOutputPanel();
         JPanel controlPanel = createControlPanel();
-
-        // Add Panels to Frame
-        add(inputPanel, BorderLayout.NORTH);
+        // Add panels to frame
         add(outputPanel, BorderLayout.CENTER);
         add(controlPanel, BorderLayout.SOUTH);
-    }
-
-    private JPanel createInputPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(8, 2, 10, 10));
-        panel.setBorder(BorderFactory.createTitledBorder("Input Section"));
-
-        // Input Fields
-        panel.add(new JLabel("Process Name:"));
-        nameField = new JTextField();
-        panel.add(nameField);
-
-        panel.add(new JLabel("Priority:"));
-        priorityField = new JTextField();
-        panel.add(priorityField);
-
-        panel.add(new JLabel("Arrival Time:"));
-        arrivalField = new JTextField();
-        panel.add(arrivalField);
-
-        panel.add(new JLabel("Burst Time:"));
-        burstField = new JTextField();
-        panel.add(burstField);
-
-        panel.add(new JLabel("Process Color:"));
-        colorField = new JTextField();
-        panel.add(colorField);
-
-        panel.add(new JLabel("Context Switch Time:"));
-        contextSwitchField = new JTextField();
-        panel.add(contextSwitchField);
 
 
-        JButton addButton = new JButton("Add Process");
-        addButton.addActionListener(e -> addProcess());
-        panel.add(addButton);
 
-        return panel;
+        // Run the scheduler directly
+        runScheduler(processList, contextSwitchTime);
     }
 
     private JPanel createOutputPanel() {
@@ -87,84 +48,48 @@ public class PriorityGUI extends JFrame {
         ganttChartPanel.setBackground(Color.LIGHT_GRAY);
         ganttChartPanel.setLayout(null); // Use absolute positioning for custom placement
 
-        // Wrap the ganttChartPanel in a JScrollPane once
         JScrollPane ganttScrollPane = new JScrollPane(ganttChartPanel);
         ganttScrollPane.setPreferredSize(new Dimension(800, 200));
 
         panel.add(ganttScrollPane, BorderLayout.SOUTH); // Add scrollable Gantt chart
         return panel;
     }
-
-
-    /*private JPanel createOutputPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createTitledBorder("Output Section"));
-
-        // Text Output Area
-        outputArea = new JTextArea();
-        outputArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(outputArea);
-        panel.add(scrollPane, BorderLayout.CENTER);
-
-        // Gantt Chart Panel
-        ganttChartPanel = new JPanel();
-        ganttChartPanel.setBackground(Color.LIGHT_GRAY);
-        ganttChartPanel.setLayout(null); // Required for manual positioning in the Gantt chart
-
-        // Add the Gantt chart to a scrollable pane
-        JScrollPane ganttScrollPane = new JScrollPane(ganttChartPanel);
-        ganttScrollPane.setPreferredSize(new Dimension(800, 200));
-
-        panel.add(ganttScrollPane, BorderLayout.SOUTH); // Add scrollable Gantt chart
-        return panel;
-    }*/
-
 
     private JPanel createControlPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout());
 
-        JButton runButton = new JButton("Run Scheduler");
-        runButton.addActionListener(e -> runScheduler());
-        panel.add(runButton);
-
-        JButton clearButton = new JButton("Clear");
-        clearButton.addActionListener(e -> clearData());
-        panel.add(clearButton);
+        JButton returnButton = new JButton("Return to Menu");
+        returnButton.addActionListener(e -> {
+            // Return to MenuGUI with the current process list
+            new MenuGUI(processList).setVisible(true);
+            dispose(); // Close the current scheduler GUI
+        });
+        panel.add(returnButton);
 
         return panel;
     }
 
-    private void addProcess() {
+    private void runScheduler(List<Processes.Process> processList, int contextSwitchTime) {
         try {
-            String name = nameField.getText();
-            int priority = Integer.parseInt(priorityField.getText());
-            int arrivalTime = Integer.parseInt(arrivalField.getText());
-            int burstTime = Integer.parseInt(burstField.getText());
-            String color = colorField.getText();
 
-            PriorityProcess process = new PriorityProcess(name, arrivalTime, burstTime, priority, color);
-            processList.add(process);
+            // Convert the general Process list to PriorityProcess list
+            List<Process> priorityProcessList = new ArrayList<>();
+            for (Processes.Process p : processList) {
+                PriorityProcess priorityProcess = new PriorityProcess(
+                        p.getName(),
+                        p.getArrivalTime(),
+                        p.getBurstTime(),
+                        p.getPriority(),
+                        p.getColor()
+                );
+                priorityProcessList.add(priorityProcess);
+            }
 
-            outputArea.append("Added Process: " + name + " (Priority: " + priority + ", Arrival: " + arrivalTime +
-                    ", Burst: " + burstTime + ", Color: " + color + ")\n");
-
-            clearInputFields();
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Please enter valid numeric values.", "Input Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void runScheduler() {
-        try {
-            float contextSwitchTime = Float.parseFloat(contextSwitchField.getText());
-
-            // Instantiate the scheduler based on selection
-            PriorityScheduling scheduler = new PriorityScheduling(processList, contextSwitchTime);
+            // Run the Priority scheduler with the casted list
+            PriorityScheduling scheduler = new PriorityScheduling(priorityProcessList, contextSwitchTime);
             scheduler.run();
 
-            // Output the results in the TextArea
             outputArea.append("\nScheduling Results:\n");
             for (Processes.Process p : scheduler.finishedProcesses) {
                 PriorityProcess pp = (PriorityProcess) p;
@@ -176,60 +101,11 @@ public class PriorityGUI extends JFrame {
             outputArea.append("Average Waiting Time: " + scheduler.avgWaitingTime / scheduler.size + "\n");
             outputArea.append("Average Turnaround Time: " + scheduler.avgTurnaroundTime / scheduler.size + "\n");
 
-            // Draw Gantt Chart
             drawGanttChart(scheduler.finishedProcesses);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "An error occurred during scheduling.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
-    /*private void drawGanttChart(List<Processes.Process> processes) {
-        ganttChartPanel.removeAll(); // Remove previous drawings
-        ganttChartPanel.setLayout(null); // Absolute positioning for custom placement
-
-        int currentY = 20; // Start position for the first process (vertical position)
-        int currentX = 10; // Start position for the first process (horizontal position)
-        int scaleFactor = 20; // Scale factor to adjust the width of each process based on burst time
-        int lineHeight = 50; // Height of each line (row) where a process will be placed
-        int panelWidth = 800; // Width of the panel (you can adjust this as needed)
-
-        // Loop through the processes and place them on the panel
-        for (Processes.Process process : processes) {
-            ShortestJobFirstProcess pp = (ShortestJobFirstProcess) process;
-
-            // Calculate width based on burst time (scaled by scaleFactor)
-            int width = pp.getBurstTime() * scaleFactor;
-
-            // Create a label for the process
-            JLabel label = new JLabel(pp.getName(), SwingConstants.CENTER);
-            label.setOpaque(true);
-
-            // Set background color based on process color
-            switch (pp.getColor().toLowerCase()) {
-                case "red": label.setBackground(Color.RED); break;
-                case "blue": label.setBackground(Color.BLUE); break;
-                case "yellow": label.setBackground(Color.YELLOW); break;
-                case "white": label.setBackground(Color.WHITE); break;
-                default: label.setBackground(Color.GRAY); break;
-            }
-
-            // Position the process label
-            label.setBounds(currentX, currentY, width, 30); // One process per row, width based on burst time
-
-            ganttChartPanel.add(label); // Add the label to the panel
-
-            // Move to the next vertical position (next row)
-            currentY += lineHeight + 10; // Move down for the next process
-        }
-
-        // Dynamically adjust the panel height based on the number of processes
-        int totalHeight = currentY + lineHeight; // Calculate the height of the panel based on the processes
-        ganttChartPanel.setPreferredSize(new Dimension(panelWidth, totalHeight)); // Set the height dynamically
-
-        // Revalidate and repaint to apply changes
-        ganttChartPanel.revalidate();
-        ganttChartPanel.repaint();
-    }*/
 
     private void drawGanttChart(List<Processes.Process> processes) {
         ganttChartPanel.removeAll(); // Remove previous drawings
@@ -257,9 +133,9 @@ public class PriorityGUI extends JFrame {
                 case "red": label.setBackground(Color.RED); break;
                 case "blue": label.setBackground(Color.BLUE); break;
                 case "yellow": label.setBackground(Color.YELLOW); break;
-                case "green": label.setBackground(Color.green); break;
-                case "cyan": label.setBackground(Color.cyan); break;
-                case "pink": label.setBackground(Color.magenta); break;
+                case "green": label.setBackground(Color.GREEN); break;
+                case "cyan": label.setBackground(Color.CYAN); break;
+                case "pink": label.setBackground(Color.MAGENTA); break;
                 case "white": label.setBackground(Color.WHITE); break;
                 default: label.setBackground(Color.ORANGE); break;
             }
@@ -287,26 +163,17 @@ public class PriorityGUI extends JFrame {
         ganttChartPanel.repaint();
     }
 
-
-
-    private void clearData() {
-        processList.clear();
-        outputArea.setText("");
-        ganttChartPanel.removeAll();
-        ganttChartPanel.repaint();
-    }
-
-    private void clearInputFields() {
-        nameField.setText("");
-        priorityField.setText("");
-        arrivalField.setText("");
-        burstField.setText("");
-        colorField.setText("");
-    }
-
     public static void main(String[] args) {
+        // Test with dummy processes
+        List<Processes.Process> testProcesses = List.of(
+                new PriorityProcess("P1", 0, 8, 1, "red"),
+                new PriorityProcess("P2", 1, 5, 3, "blue"),
+                new PriorityProcess("P3", 2, 6, 2, "yellow"),
+                new PriorityProcess("P4", 3, 4, 4, "green")
+        );
+
         SwingUtilities.invokeLater(() -> {
-            PriorityGUI gui = new PriorityGUI();
+            PriorityGUI gui = new PriorityGUI(testProcesses, 2); // Example context switch time
             gui.setVisible(true);
         });
     }

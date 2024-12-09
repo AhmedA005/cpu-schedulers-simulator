@@ -3,10 +3,8 @@ package Schedulers;
 import Processes.FCAIProcess;
 import Processes.Process;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
+import java.security.KeyPair;
+import java.util.*;
 
 import static java.lang.Math.ceil;
 
@@ -30,11 +28,15 @@ public class FCAIScheduling extends Scheduler {
     List<FCAIProcess> readyQueue;
     List<Process> copyProcessList;
 
-    public List<Process> getProcessExeutionOrder() {
+    public List<FCAIProcess> getProcessExeutionOrder() {
         return processExeutionOrder;
     }
 
-    List<Process> processExeutionOrder;
+    List<FCAIProcess> processExeutionOrder;
+    List<Integer> remaining;
+
+    public List<Integer> getRemaining(){return remaining;}
+
     List<String> executionOrder;
     int currentTime;
     double V1;
@@ -47,6 +49,7 @@ public class FCAIScheduling extends Scheduler {
         this.readyQueue = new ArrayList<>();
         this.executionOrder = new ArrayList<>();
         this.processExeutionOrder = new ArrayList<>();
+        this.remaining = new ArrayList<>();
         this.currentTime = 0;
         this.V1 = processList.stream().mapToDouble(Process::getArrivalTime).max().orElse(0) / 10;
         this.V2 = processList.stream().mapToDouble(Process::getBurstTime).max().orElse(0) / 10;
@@ -75,29 +78,6 @@ public class FCAIScheduling extends Scheduler {
         calculateAndPrint(finishedProcesses);
     }
 
-    public boolean runScheduler() {
-        try {
-            copyProcessList.sort(new comp());
-
-            while (!copyProcessList.isEmpty() || !readyQueue.isEmpty()) {
-                addArrivedProcesses();
-
-                if (readyQueue.isEmpty()) {
-                    currentTime++;
-                    continue;
-                }
-
-                FCAIProcess currentProcess = readyQueue.removeFirst();
-                executeProcess(currentProcess);
-            }
-
-            calculateAndPrint(finishedProcesses);
-            return true; // Success
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false; // Failure
-        }
-    }
 
 
     @Override
@@ -137,6 +117,7 @@ public class FCAIScheduling extends Scheduler {
         int startTime = currentTime; // Mark the start time of execution
 
         executionOrder.add(currentProcess.getName());
+
 
         // Execute the process in its quantum
         while (executedTime < execTime) {

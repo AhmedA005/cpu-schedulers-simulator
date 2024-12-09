@@ -13,12 +13,14 @@ public class ShortestRemainingTimeFirst extends Scheduler {
     List<ShortestRemainingTimeProcess> arrivedList;
     public List<ShortestRemainingTimeProcess> tempList;
     public List<ShortestRemainingTimeProcess> executionList;
+    private int contextSwitchTime;
 
-    public ShortestRemainingTimeFirst(List<Process> ProcessList) {
+    public ShortestRemainingTimeFirst(List<Process> ProcessList, int contextSwitchTime) {
         super(ProcessList);
         this.arrivedList= new ArrayList<>();
         this.tempList= new ArrayList<>();
         this.executionList= new ArrayList<>();
+        this.contextSwitchTime=contextSwitchTime;
 
     }
     @Override
@@ -45,12 +47,12 @@ public class ShortestRemainingTimeFirst extends Scheduler {
             }
 
             startProcess=toStartMinProcess(arrivedList,nowTime);
-            executionList.add(startProcess);
-            
+
             if(startProcess!= null){
+                executionList.add(startProcess);
                 if(currentProcess != startProcess){
                     if (currentProcess != null) {
-                        nowTime += startProcess.getcontextSwitching();
+                        nowTime += contextSwitchTime;
                         switched=true;
                     }
                     currentProcess = startProcess;
@@ -60,7 +62,7 @@ public class ShortestRemainingTimeFirst extends Scheduler {
                 startProcess.decrementBurstTime();
 
                 if(startProcess.getBurstTime()==0){
-                    startProcess.set_TurnaroundTime(nowTime+ startProcess.getcontextSwitching()-startProcess.getArrivalTime());//completion-arrival
+                    startProcess.set_TurnaroundTime(nowTime+ contextSwitchTime-startProcess.getArrivalTime());//completion-arrival
                     startProcess.set_WaitingTime(startProcess.get_TurnaroundTime()-startProcess.get_originalBurstTime());
                     processList.remove(startProcess);
                     arrivedList.remove(startProcess);
@@ -76,6 +78,7 @@ public class ShortestRemainingTimeFirst extends Scheduler {
             if(i==executionList.size()-1){
                 System.out.print(executionList.get(i).getName());
             }else{
+                if(executionList.get(i) != null)
                 System.out.print(executionList.get(i).getName() + "-> " );
             }
 

@@ -8,10 +8,8 @@ public class ShortestRemainingTimeProcess extends Process{
     int contextSwitching;
     int originalBurstTime;
 
-    public ShortestRemainingTimeProcess(String name, int arrivalTime, int burstTime, int priority, String color, int contextSwitching) {
+    public ShortestRemainingTimeProcess(String name, int arrivalTime, int burstTime, int priority, String color) {
         super(name, arrivalTime, burstTime, priority, color);
-        this.contextSwitching=contextSwitching;
-
     }
     public int get_originalBurstTime(){
         return originalBurstTime;

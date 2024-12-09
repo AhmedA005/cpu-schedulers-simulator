@@ -7,72 +7,27 @@ import Processes.FCAIProcess;
 import Schedulers.FCAIScheduling;
 
 public class FCAIGUI extends JFrame {
-    private JTextField nameField, priorityField, arrivalField, burstField, quantumField, colorField;
     private JTextArea outputArea;
     private JPanel ganttChartPanel;
-    private List<Processes.Process> processList;
+    List<Processes.Process> processList;
 
-    public FCAIGUI() {
+    public FCAIGUI(List<Processes.Process> processList) {
+        this.processList = processList;
         setTitle("FCAI Scheduler Simulator");
         setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
 
-        // Initialize processList
-        processList = new ArrayList<>();
-
         // Create panels
-        JPanel inputPanel = createInputPanel();
         JPanel outputPanel = createOutputPanel();
         JPanel controlPanel = createControlPanel();
 
         // Add panels to frame
-        add(inputPanel, BorderLayout.NORTH);
         add(outputPanel, BorderLayout.CENTER);
         add(controlPanel, BorderLayout.SOUTH);
-    }
 
-    private JPanel createInputPanel() {
-        JPanel inputPanel = new JPanel();
-        inputPanel.setLayout(new GridLayout(8, 2, 10, 10));
-        inputPanel.setBorder(BorderFactory.createTitledBorder("Input Section"));
-
-        // Process Name
-        inputPanel.add(new JLabel("Process Name:"));
-        nameField = new JTextField();
-        inputPanel.add(nameField);
-
-        // Arrival Time
-        inputPanel.add(new JLabel("Arrival Time:"));
-        arrivalField = new JTextField();
-        inputPanel.add(arrivalField);
-
-        // Burst Time
-        inputPanel.add(new JLabel("Burst Time:"));
-        burstField = new JTextField();
-        inputPanel.add(burstField);
-
-        // Priority
-        inputPanel.add(new JLabel("Priority:"));
-        priorityField = new JTextField();
-        inputPanel.add(priorityField);
-
-        // Initial Quantum
-        inputPanel.add(new JLabel("Quantum:"));
-        quantumField = new JTextField();
-        inputPanel.add(quantumField);
-
-        // Process Color
-        inputPanel.add(new JLabel("Process Color:"));
-        colorField = new JTextField();
-        inputPanel.add(colorField);
-
-        // Add Process Button
-        JButton addButton = new JButton("Add Process");
-        addButton.addActionListener(e -> addProcess());
-        inputPanel.add(addButton);
-
-        return inputPanel;
+        // Run the scheduler directly
+        runScheduler(processList);
     }
 
     private JPanel createOutputPanel() {
@@ -103,49 +58,36 @@ public class FCAIGUI extends JFrame {
         JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout());
 
-        JButton runButton = new JButton("Run Scheduler");
-        runButton.addActionListener(e -> runScheduler());
-        panel.add(runButton);
-
-        JButton clearButton = new JButton("Clear");
-        clearButton.addActionListener(e -> clearData());
-        panel.add(clearButton);
+        JButton returnButton = new JButton("Return to Menu");
+        returnButton.addActionListener(e -> {
+            // Return to MenuGUI with the current process list
+            new MenuGUI(processList).setVisible(true);
+            dispose(); // Close the current scheduler GUI
+        });
+        panel.add(returnButton);
 
         return panel;
     }
 
-    private void addProcess() {
-        try {
-            // Read inputs from GUI fields
-            String name = nameField.getText();
-            int arrivalTime = Integer.parseInt(arrivalField.getText());
-            int burstTime = Integer.parseInt(burstField.getText());
-            int priority = Integer.parseInt(priorityField.getText());
-            int quantum = Integer.parseInt(quantumField.getText());
-            String color = colorField.getText();
 
-            // Validate inputs
-            if (arrivalTime < 0 || burstTime <= 0 || priority < 0 || quantum <= 0) {
-                throw new IllegalArgumentException("All numeric values must be positive.");
+    private void runScheduler(List<Processes.Process> processList) {
+        try {
+            // Convert the general Process list to FCAIProcess list
+            List<Process> fcaiProcessList = new ArrayList<>();
+            for (Processes.Process p : processList) {
+                FCAIProcess fcaiProcess = new FCAIProcess(
+                        p.getName(),
+                        p.getArrivalTime(),
+                        p.getBurstTime(),
+                        p.getPriority(),
+                        p.getQuantum(),
+                        p.getColor()
+                );
+                fcaiProcessList.add(fcaiProcess);
             }
 
-            // Create FCAIProcess and add to processList
-            FCAIProcess process = new FCAIProcess(name, arrivalTime, burstTime, priority, quantum, color);
-            processList.add(process);
-
-            // Update outputArea with process details
-            outputArea.append("Added Process: " + name + "\n");
-            clearInputFields();
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error adding process: " + ex.getMessage(),
-                    "Input Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void runScheduler() {
-        try {
-            // Always use FCAIScheduling
-            FCAIScheduling scheduler = new FCAIScheduling(processList);
+            // Run the FCAI scheduler with the casted list
+            FCAIScheduling scheduler = new FCAIScheduling(fcaiProcessList);
             scheduler.run();
 
             outputArea.append("\nFCAI Scheduling Results:\n");
@@ -157,7 +99,7 @@ public class FCAIGUI extends JFrame {
                         ", Quantum History: " + fp.getQuantumHistory() + "\n");
             }
 
-            updateGanttChart(scheduler.getProcessExeutionOrder());
+            updateGanttChart(scheduler.getProcessExeutionOrder(), scheduler.getRemaining());
         } catch (Exception ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(this, "An error occurred during scheduling: " + ex.getMessage(),
@@ -165,17 +107,17 @@ public class FCAIGUI extends JFrame {
         }
     }
 
-    private void updateGanttChart(List<Process> executionOrder) {
+    private void updateGanttChart(List<FCAIProcess> executionOrder, List<Integer> remaining) {
         ganttChartPanel.removeAll();
         int currentX = 10;
         int currentY = 20; // Fixed Y position
-        int scaleFactor = 5;
+        int scaleFactor = 15;
         int lineHeight = 30; // Height of each row
-
-        for (Process pp : executionOrder) {
+        int counter = 0;
+        for (FCAIProcess pp : executionOrder) {
             // Calculate width based on burst time (scaled by scaleFactor)
-            int width = pp.getBurstTime() * scaleFactor;
-
+            int width = (pp.getBurstTime() - remaining.get(counter)) * scaleFactor;
+            counter++;
             // Create a label for the process
             JLabel label = new JLabel(pp.getName(), SwingConstants.CENTER);
             label.setOpaque(true);
@@ -202,29 +144,5 @@ public class FCAIGUI extends JFrame {
 
         ganttChartPanel.revalidate();
         ganttChartPanel.repaint();
-    }
-
-
-    private void clearData() {
-        processList.clear();
-        outputArea.setText("");
-        ganttChartPanel.removeAll();
-        ganttChartPanel.repaint();
-    }
-
-    private void clearInputFields() {
-        nameField.setText("");
-        priorityField.setText("");
-        arrivalField.setText("");
-        burstField.setText("");
-        quantumField.setText("");
-        colorField.setText("");
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            FCAIGUI gui = new FCAIGUI();
-            gui.setVisible(true);
-        });
     }
 }

@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
         List<Process> PriorityProcesses = new ArrayList<>();
         PriorityProcesses.add(new ShortestJobFirstProcess("P1", 0, 7, 0, "red"));
-        PriorityProcesses.add(new ShortestJobFirstProcess("P2", 1, 8, 1, "blue"));
+        PriorityProcesses.add(new ShortestJobFirstProcess("P2", 0, 8, 1, "blue"));
         PriorityProcesses.add(new ShortestJobFirstProcess("P3", 3, 2, 2, "yellow"));
         PriorityProcesses.add(new ShortestJobFirstProcess("P4", 1, 9, 1, "blue"));
         PriorityProcesses.add(new ShortestJobFirstProcess("P5", 2, 10, 1, "blue"));

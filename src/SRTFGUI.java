@@ -3,69 +3,35 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import Processes.Process;
 import Processes.ShortestRemainingTimeProcess;
-import Processes.ShortestJobFirstProcess;
 import Schedulers.ShortestRemainingTimeFirst;
 
 import static java.lang.Math.ceil;
 
 public class SRTFGUI extends JFrame {
-    private JTextField nameField, priorityField, arrivalField, burstField, colorField, contextSwitching;
     private JTextArea outputArea;
     private JPanel ganttChartPanel;
-    private List<Processes.Process> processList;
+    List<Processes.Process> processList;
 
-    public SRTFGUI() {
-        processList = new ArrayList<>();
-
+    public SRTFGUI(List<Processes.Process> processList, int contextSwitchTime) {
+        this.processList = processList;
         setTitle("Shortest Remaining Time Scheduler Simulator");
         setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
 
-        JPanel inputPanel = createInputPanel();
+        // Create output and control panels
         JPanel outputPanel = createOutputPanel();
         JPanel controlPanel = createControlPanel();
 
-        add(inputPanel, BorderLayout.NORTH);
+
+        // Add panels to frame
         add(outputPanel, BorderLayout.CENTER);
         add(controlPanel, BorderLayout.SOUTH);
-    }
 
-    private JPanel createInputPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(7, 2, 10, 10));
-        panel.setBorder(BorderFactory.createTitledBorder("Input Section"));
-
-        panel.add(new JLabel("Process Name:"));
-        nameField = new JTextField();
-        panel.add(nameField);
-
-        panel.add(new JLabel("Priority:"));
-        priorityField = new JTextField();
-        panel.add(priorityField);
-
-        panel.add(new JLabel("Arrival Time:"));
-        arrivalField = new JTextField();
-        panel.add(arrivalField);
-
-        panel.add(new JLabel("Burst Time:"));
-        burstField = new JTextField();
-        panel.add(burstField);
-
-        panel.add(new JLabel("Context Switching Time:"));
-        contextSwitching = new JTextField();
-        panel.add(contextSwitching);
-
-        panel.add(new JLabel("Process Color:"));
-        colorField = new JTextField();
-        panel.add(colorField);
-
-        JButton addButton = new JButton("Add Process");
-        addButton.addActionListener(e -> addProcess());
-        panel.add(addButton);
-
-        return panel;
+        // Run the scheduler directly
+        runScheduler(processList, contextSwitchTime);
     }
 
     private JPanel createOutputPanel() {
@@ -93,58 +59,50 @@ public class SRTFGUI extends JFrame {
         JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout());
 
-        JButton runButton = new JButton("Run Scheduler");
-        runButton.addActionListener(e -> runScheduler());
-        panel.add(runButton);
-
-        JButton clearButton = new JButton("Clear");
-        clearButton.addActionListener(e -> clearData());
-        panel.add(clearButton);
+        JButton returnButton = new JButton("Return to Menu");
+        returnButton.addActionListener(e -> {
+            // Return to MenuGUI with the current process list
+            new MenuGUI(processList).setVisible(true);
+            dispose(); // Close the current scheduler GUI
+        });
+        panel.add(returnButton);
 
         return panel;
     }
 
-    private void addProcess() {
+    private void runScheduler(List<Processes.Process> processList, int contextSwitchTime) {
         try {
-            String name = nameField.getText();
-            int priority = Integer.parseInt(priorityField.getText());
-            int arrivalTime = Integer.parseInt(arrivalField.getText());
-            int burstTime = Integer.parseInt(burstField.getText());
-            int context= Integer.parseInt(contextSwitching.getText());
-            String color = colorField.getText();
+            // Convert the general Process list to ShortestRemainingTimeProcess list
+            List<Process> srtfProcessList = new ArrayList<>();
+            for (Processes.Process p : processList) {
+                ShortestRemainingTimeProcess srtfProcess = new ShortestRemainingTimeProcess(
+                        p.getName(),
+                        p.getArrivalTime(),
+                        p.getBurstTime(),
+                        p.getPriority(),
+                        p.getColor()
+                );
+                srtfProcessList.add(srtfProcess);
+            }
 
-            ShortestRemainingTimeProcess process = new ShortestRemainingTimeProcess(name, arrivalTime, burstTime, priority, color,context);
-            processList.add(process);
-
-            outputArea.append("Added Process: " + name + " (Priority: " + priority + ", Arrival: " + arrivalTime +
-                    ", Burst: " + burstTime + ", Color: " + color + ", context: "+context +")\n");
-
-            clearInputFields();
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Please enter valid numeric values.", "Input Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void runScheduler() {
-        try {
-            ShortestRemainingTimeFirst scheduler = new ShortestRemainingTimeFirst(processList);
+            // Run the SRTF scheduler with the casted list
+            ShortestRemainingTimeFirst scheduler = new ShortestRemainingTimeFirst(srtfProcessList, contextSwitchTime);
             scheduler.run();
-            double totalWaitingTime=0;
-            double totalTurnaroundTime=0;
+
+            double totalWaitingTime = 0;
+            double totalTurnaroundTime = 0;
 
             outputArea.append("\nScheduling Results:\n");
             for (ShortestRemainingTimeProcess pp : scheduler.tempList) {
-
                 outputArea.append("Process: " + pp.getName() +
                         ", Waiting Time: " + pp.getWaitingTime() +
                         ", Turnaround Time: " + pp.get_TurnaroundTime() + "\n");
                 totalWaitingTime += pp.getWaitingTime();
-                totalTurnaroundTime+=pp.get_TurnaroundTime();
+                totalTurnaroundTime += pp.get_TurnaroundTime();
             }
 
-
-            double averageWaitingTime= (int) ceil(totalWaitingTime/scheduler.tempList.size());
-            double averageTurnaroundTime=(int) ceil(totalTurnaroundTime/scheduler.tempList.size());
+            double averageWaitingTime = Math.ceil(totalWaitingTime / scheduler.tempList.size());
+            double averageTurnaroundTime = Math.ceil(totalTurnaroundTime / scheduler.tempList.size());
             outputArea.append("\nAverage Waiting Time: " + averageWaitingTime + "\n");
             outputArea.append("Average Turnaround Time: " + averageTurnaroundTime + "\n");
 
@@ -154,6 +112,7 @@ public class SRTFGUI extends JFrame {
             JOptionPane.showMessageDialog(this, "An error occurred during scheduling.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
     private void drawGanttChart(List<ShortestRemainingTimeProcess> executionList) {
         ganttChartPanel.removeAll();
         ganttChartPanel.setLayout(null);
@@ -170,8 +129,6 @@ public class SRTFGUI extends JFrame {
             JLabel label = new JLabel(process.getName(), SwingConstants.CENTER);
             label.setOpaque(true);
 
-
-
             switch (process.getColor().toLowerCase()) {
                 case "red": label.setBackground(Color.RED); break;
                 case "blue": label.setBackground(Color.BLUE); break;
@@ -183,46 +140,35 @@ public class SRTFGUI extends JFrame {
                 default: label.setBackground(Color.ORANGE); break;
             }
 
-            label.setBounds(currentX, currentY, width , 30);
+            label.setBounds(currentX, currentY, width, 30);
 
             ganttChartPanel.add(label);
             currentX += width + 5;
 
-
-        if (currentX > panelWidth) {
-            currentX = 10;
-            currentY += lineHeight + 10;
+            if (currentX > panelWidth) {
+                currentX = 10;
+                currentY += lineHeight + 10;
+            }
         }
-    }
 
-
-    int totalHeight = currentY + lineHeight;
+        int totalHeight = currentY + lineHeight;
         ganttChartPanel.setPreferredSize(new Dimension(panelWidth, totalHeight));
 
-    // Revalidate and repaint to apply changes
         ganttChartPanel.revalidate();
         ganttChartPanel.repaint();
     }
 
-
-    private void clearData() {
-        processList.clear();
-        outputArea.setText("");
-        ganttChartPanel.removeAll();
-        ganttChartPanel.repaint();
-    }
-
-    private void clearInputFields() {
-        nameField.setText("");
-        priorityField.setText("");
-        arrivalField.setText("");
-        burstField.setText("");
-        colorField.setText("");
-    }
-
     public static void main(String[] args) {
+        // Test with dummy processes
+        List<Processes.Process> testProcesses = List.of(
+                new ShortestRemainingTimeProcess("P1", 0, 7, 1, "red"),
+                new ShortestRemainingTimeProcess("P2", 2, 4, 2, "blue"),
+                new ShortestRemainingTimeProcess("P3", 4, 1, 3, "yellow"),
+                new ShortestRemainingTimeProcess("P4", 5, 4, 4, "green")
+        );
+
         SwingUtilities.invokeLater(() -> {
-            SRTFGUI gui = new SRTFGUI();
+            SRTFGUI gui = new SRTFGUI(testProcesses, 1);
             gui.setVisible(true);
         });
     }

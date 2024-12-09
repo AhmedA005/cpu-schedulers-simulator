@@ -18,23 +18,6 @@ public class ShortestJobFirst extends Scheduler {
     public ShortestJobFirst(List<Process> ProcessList) {
         super(ProcessList);
     }
-/*    public List<Process> sorting() {
-        for (Process p : processList) {
-            arrivalTimes.add(new ShortestJobFirstProcess(p.getName(),p.getArrivalTime(),p.getBurstTime(),p.getPriority(),p.getColor()));
-            burstTimes.add(new ShortestJobFirstProcess(p.getName(),p.getArrivalTime(),p.getBurstTime(),p.getPriority(),p.getColor()));
-        }
-        arrivalTimes.sort(Comparator.comparingInt(Process::getArrivalTime));
-        burstTimes.sort(Comparator.comparingInt(Process::getBurstTime));
-        System.out.println("By Arrival Times:");
-        for (Process p : arrivalTimes) {
-            System.out.println(p.getName() + " " + p.getArrivalTime() + " " + p.getBurstTime());
-        }
-        System.out.println("By Burst Times:");
-        for (Process p : burstTimes) {
-            System.out.println(p.getName() + " " + p.getArrivalTime() + " " + p.getBurstTime());
-        }
-        return arrivalTimes;
-    }*/
 
     void executeProcess(ShortestJobFirstProcess p) {
         p.setWaitingTime(currentTime - p.getArrivalTime());
@@ -59,6 +42,10 @@ public class ShortestJobFirst extends Scheduler {
                 if (p.getArrivalTime() <= currentTime) {
                     arrivedProcesses.add(new ShortestJobFirstProcess(p.getName(),p.getArrivalTime(),p.getBurstTime(),p.getPriority(),p.getColor()));
                 }
+            }
+            if(arrivedProcesses.isEmpty()){
+                currentTime++;
+                continue;
             }
             for (Process p : arrivedProcesses) {
                 if (currentTime - p.getArrivalTime() > maxWaitingTime) {
