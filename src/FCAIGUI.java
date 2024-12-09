@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+
 import Processes.Process;
 import Processes.FCAIProcess;
 import Schedulers.FCAIScheduling;
@@ -124,14 +125,30 @@ public class FCAIGUI extends JFrame {
 
             // Set background color based on process color
             switch (pp.getColor().toLowerCase()) {
-                case "red": label.setBackground(Color.RED); break;
-                case "blue": label.setBackground(Color.BLUE); break;
-                case "yellow": label.setBackground(Color.YELLOW); break;
-                case "green": label.setBackground(Color.GREEN); break;
-                case "cyan": label.setBackground(Color.CYAN); break;
-                case "pink": label.setBackground(Color.MAGENTA); break;
-                case "white": label.setBackground(Color.WHITE); break;
-                default: label.setBackground(Color.ORANGE); break;
+                case "red":
+                    label.setBackground(Color.RED);
+                    break;
+                case "blue":
+                    label.setBackground(Color.BLUE);
+                    break;
+                case "yellow":
+                    label.setBackground(Color.YELLOW);
+                    break;
+                case "green":
+                    label.setBackground(Color.GREEN);
+                    break;
+                case "cyan":
+                    label.setBackground(Color.CYAN);
+                    break;
+                case "pink":
+                    label.setBackground(Color.MAGENTA);
+                    break;
+                case "white":
+                    label.setBackground(Color.WHITE);
+                    break;
+                default:
+                    label.setBackground(Color.ORANGE);
+                    break;
             }
 
             label.setBounds(currentX, currentY, width, lineHeight); // Set position
@@ -141,7 +158,6 @@ public class FCAIGUI extends JFrame {
             // Move to the next position horizontally
             currentX += width + 10; // Increment X position by width + some spacing
         }
-
         ganttChartPanel.revalidate();
         ganttChartPanel.repaint();
     }

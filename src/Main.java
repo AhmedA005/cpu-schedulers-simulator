@@ -28,9 +28,9 @@ public class Main {
 
         float contextSwitchTime = 5;
 
-        ShortestJobFirst priorityScheduler = new ShortestJobFirst(PriorityProcesses);
-        priorityScheduler.run();
-/*
+//        ShortestJobFirst priorityScheduler = new ShortestJobFirst(PriorityProcesses);
+//        priorityScheduler.run();
+
         List<Process> FCAIProcesses = new ArrayList<>();
         FCAIProcesses.add(new FCAIProcess("P1", 0, 17, 4, 4, "red"));
         FCAIProcesses.add(new FCAIProcess("P2", 3, 6, 9, 3, "yellow"));
@@ -39,7 +39,7 @@ public class Main {
         FCAIScheduling fcaiScheduling = new FCAIScheduling(FCAIProcesses);
 
         fcaiScheduling.run();
-
+/*
         List<Process> shortestRemainingTimeProcesses = new ArrayList<>();
         shortestRemainingTimeProcesses.add( new ShortestRemainingTimeProcess("P1", 0, 4, 4, "red", 1));
         shortestRemainingTimeProcesses.add( new ShortestRemainingTimeProcess("P2", 1, 8, 3, "green", 1));

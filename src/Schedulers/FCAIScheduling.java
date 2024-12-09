@@ -130,6 +130,7 @@ public class FCAIScheduling extends Scheduler {
                     betterProcess != null;
 
             if (shouldPreempt) {
+                remaining.add(currentProcess.getRemainingBurstTime());
                 logExecution(startTime, currentTime, currentProcess, executedTime,
                         currentProcess.getName() + " preempted by " + betterProcess.getName());
 
@@ -148,6 +149,7 @@ public class FCAIScheduling extends Scheduler {
 
             // If process completes, log and return
             if (currentProcess.getRemainingBurstTime() <= 0) {
+                remaining.add(currentProcess.getRemainingBurstTime());
                 logExecution(startTime, currentTime, currentProcess, executedTime,
                         currentProcess.getName() + " completes execution");
 
@@ -172,6 +174,7 @@ public class FCAIScheduling extends Scheduler {
         } else {
             finishedProcesses.add(currentProcess);
         }
+        remaining.add(currentProcess.getRemainingBurstTime());
     }
 
     private void updateProcessQuantum(FCAIProcess currentProcess, int executedTime) {
