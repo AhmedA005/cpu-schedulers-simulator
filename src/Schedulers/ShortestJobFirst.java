@@ -12,7 +12,7 @@ public class ShortestJobFirst extends Scheduler {
     private int currentTime = 0;
     double averageWaitingTime;
     double averageTurnAroundTime;
-
+    int maxWaitingTime = 12;
     public List<Processes.Process> finishedProcesses = new ArrayList<>();
 
     public ShortestJobFirst(List<Process> ProcessList) {
@@ -36,27 +36,7 @@ public class ShortestJobFirst extends Scheduler {
         return arrivalTimes;
     }*/
 
-
-    @Override
-    public void run() {
-        while (!processList.isEmpty()) {
-        List<Process> arrivedProcesses = new ArrayList<>();
-        for (Process p : processList) {
-            if (p.getArrivalTime() <= currentTime) {
-            arrivedProcesses.add(new ShortestJobFirstProcess(p.getName(),p.getArrivalTime(),p.getBurstTime(),p.getPriority(),p.getColor()));
-            }
-        }
-        arrivedProcesses.sort(Comparator.comparingInt(Process::getBurstTime));
-        List<Process> temp = new ArrayList<>();
-        temp.add(arrivedProcesses.getFirst());
-        for (int i = 0; i < arrivedProcesses.size()-1; i++) {
-            if(arrivedProcesses.get(i).getBurstTime() == arrivedProcesses.get(i+1).getBurstTime()) {
-                temp.add(arrivedProcesses.get(i+1));
-            }
-            else break;
-        }
-        temp.sort(Comparator.comparingInt(Process::getArrivalTime));
-        ShortestJobFirstProcess p = (ShortestJobFirstProcess) temp.getFirst();
+    void executeProcess(ShortestJobFirstProcess p) {
         p.setWaitingTime(currentTime - p.getArrivalTime());
         p.setTurnAroundTime(p.getWaitingTime() + p.getBurstTime());
         currentTime += p.getBurstTime();
@@ -69,6 +49,37 @@ public class ShortestJobFirst extends Scheduler {
             }
         }
         System.out.println(p.getName() + " " + p.getArrivalTime() + " " + p.getBurstTime());
+    }
+    @Override
+    public void run() {
+        while (!processList.isEmpty()) {
+            boolean waiting = false;
+            List<Process> arrivedProcesses = new ArrayList<>();
+            for (Process p : processList) {
+                if (p.getArrivalTime() <= currentTime) {
+                    arrivedProcesses.add(new ShortestJobFirstProcess(p.getName(),p.getArrivalTime(),p.getBurstTime(),p.getPriority(),p.getColor()));
+                }
+            }
+            for (Process p : arrivedProcesses) {
+                if (currentTime - p.getArrivalTime() > maxWaitingTime) {
+                    executeProcess((ShortestJobFirstProcess) p);
+                    waiting = true;
+                    break;
+                }
+            }
+            if (waiting)continue;
+            arrivedProcesses.sort(Comparator.comparingInt(Process::getBurstTime));
+            List<Process> temp = new ArrayList<>();
+            temp.add(arrivedProcesses.getFirst());
+            for (int i = 0; i < arrivedProcesses.size()-1; i++) {
+                if(arrivedProcesses.get(i).getBurstTime() == arrivedProcesses.get(i+1).getBurstTime()) {
+                    temp.add(arrivedProcesses.get(i+1));
+                }
+                else break;
+            }
+            temp.sort(Comparator.comparingInt(Process::getArrivalTime));
+            ShortestJobFirstProcess p = (ShortestJobFirstProcess) temp.getFirst();
+            executeProcess(p);
         }
         calculateAndPrint(finishedProcesses);
     }
