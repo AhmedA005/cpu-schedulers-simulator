@@ -28,6 +28,9 @@ public class FCAIScheduling extends Scheduler {
     List<FCAIProcess> readyQueue;
     List<Process> copyProcessList;
 
+    double averageWaitingTime;
+    double averageTurnAroundTime;
+
     public List<FCAIProcess> getProcessExeutionOrder() {
         return processExeutionOrder;
     }
@@ -105,9 +108,13 @@ public class FCAIScheduling extends Scheduler {
 
         }
 
+        averageWaitingTime = totalWaitingTime / finishedProcesses.size();
+        averageTurnAroundTime = totalTurnaroundTime / finishedProcesses.size();
+        System.out.println("Average waiting time : " + averageWaitingTime);
+        System.out.println("Average turn around time : " + averageTurnAroundTime);
 
-        System.out.println("Average Waiting Time: " + totalWaitingTime / finishedProcesses.size());
-        System.out.println("Average Turnaround Time: " + totalTurnaroundTime / finishedProcesses.size());
+//        System.out.println("Average Waiting Time: " + totalWaitingTime / finishedProcesses.size());
+//        System.out.println("Average Turnaround Time: " + totalTurnaroundTime / finishedProcesses.size());
     }
 
     private void executeProcess(FCAIProcess currentProcess) {
@@ -232,5 +239,13 @@ public class FCAIScheduling extends Scheduler {
                 startTime + "->" + endTime, currentProcess.getName(), executedTime,
                 currentProcess.getRemainingBurstTime(), currentProcess.getQuantum(),
                 currentProcess.getPriority(), fcaiFactor, action);
+    }
+
+    public double getAverageWaitingTime() {
+        return averageWaitingTime;
+    }
+
+    public double getAverageTurnAroundTime() {
+        return averageTurnAroundTime;
     }
 }

@@ -31,7 +31,7 @@ public class ShortestJobFirst extends Scheduler {
                 break;
             }
         }
-        System.out.println(p.getName() + " " + p.getArrivalTime() + " " + p.getBurstTime());
+//        System.out.println(p.getName() + " " + p.getArrivalTime() + " " + p.getBurstTime());
     }
     @Override
     public void run() {

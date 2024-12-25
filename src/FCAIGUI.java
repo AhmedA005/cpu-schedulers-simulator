@@ -100,6 +100,10 @@ public class FCAIGUI extends JFrame {
                         ", Turnaround Time: " + (fp.getFinalFinishTime() - fp.getArrivalTime()) +
                         ", Quantum History: " + fp.getQuantumHistory() + "\n");
             }
+            double averageWaitingTime = scheduler.getAverageWaitingTime();
+            double averageTurnAroundTime = scheduler.getAverageTurnAroundTime();
+            outputArea.append("\nAverage Waiting Time: " + averageWaitingTime + "\n");
+            outputArea.append("Average Turnaround Time: " + averageTurnAroundTime + "\n");
 
             updateGanttChart(scheduler.getProcessExeutionOrder(), scheduler.getRemaining());
         } catch (Exception ex) {
