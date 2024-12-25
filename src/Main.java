@@ -41,12 +41,12 @@ public class Main {
         fcaiScheduling.run();
 /*
         List<Process> shortestRemainingTimeProcesses = new ArrayList<>();
-        shortestRemainingTimeProcesses.add( new ShortestRemainingTimeProcess("P1", 0, 4, 4, "red", 1));
-        shortestRemainingTimeProcesses.add( new ShortestRemainingTimeProcess("P2", 1, 8, 3, "green", 1));
-        shortestRemainingTimeProcesses.add( new ShortestRemainingTimeProcess("P3", 3, 2, 6, "blue", 1));
-        shortestRemainingTimeProcesses.add( new ShortestRemainingTimeProcess("P4", 10, 6, 9, "gray", 1));
-        shortestRemainingTimeProcesses.add( new ShortestRemainingTimeProcess("P5", 12, 5, 10, "black", 1));
-        ShortestRemainingTimeFirst srtf=new ShortestRemainingTimeFirst(shortestRemainingTimeProcesses);
+        shortestRemainingTimeProcesses.add( new ShortestRemainingTimeProcess("P1", 0, 4, 4, "red"));
+        shortestRemainingTimeProcesses.add( new ShortestRemainingTimeProcess("P2", 1, 8, 3, "green"));
+        shortestRemainingTimeProcesses.add( new ShortestRemainingTimeProcess("P3", 3, 2, 6, "blue"));
+        shortestRemainingTimeProcesses.add( new ShortestRemainingTimeProcess("P4", 10, 6, 9, "gray"));
+        shortestRemainingTimeProcesses.add( new ShortestRemainingTimeProcess("P5", 12, 5, 10, "black"));
+        ShortestRemainingTimeFirst srtf=new ShortestRemainingTimeFirst(shortestRemainingTimeProcesses,1);
         srtf.run();
         */
     }
