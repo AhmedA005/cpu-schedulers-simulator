@@ -7,6 +7,7 @@ import Processes.Process;
 import Processes.FCAIProcess;
 import Schedulers.FCAIScheduling;
 
+
 public class FCAIGUI extends JFrame {
     private JTextArea outputArea;
     private JPanel ganttChartPanel;
@@ -115,6 +116,8 @@ public class FCAIGUI extends JFrame {
         int scaleFactor = 15;
         int lineHeight = 30; // Height of each row
         int counter = 0;
+        int panelWidth = 800; // Width of the panel (you can adjust this as needed)
+
         for (FCAIProcess pp : executionOrder) {
             // Calculate width based on burst time (scaled by scaleFactor)
             int width = (pp.getBurstTime() - remaining.get(counter)) * scaleFactor;
@@ -154,11 +157,20 @@ public class FCAIGUI extends JFrame {
             label.setBounds(currentX, currentY, width, lineHeight); // Set position
 
             ganttChartPanel.add(label); // Add the label to the panel
-
+            currentX += width + 5;
             // Move to the next position horizontally
-            currentX += width + 10; // Increment X position by width + some spacing
+            if (currentX > panelWidth) {
+                currentX = 10; // Reset X to start from the left again
+                currentY += lineHeight + 10; // Move to the next row (next Y position)
+            }
         }
+
+        // Dynamically adjust the panel height based on the number of rows
+        int totalHeight = currentY + lineHeight; // Calculate the height of the panel based on the processes
+        ganttChartPanel.setPreferredSize(new Dimension(panelWidth, totalHeight));
+
         ganttChartPanel.revalidate();
         ganttChartPanel.repaint();
     }
 }
+
