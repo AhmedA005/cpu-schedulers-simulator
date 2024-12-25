@@ -18,7 +18,20 @@ public class Main {
         sjfpProcesses.add(new ShortestJobFirstProcess("P5", 2, 10, 1, "blue"));
         ShortestJobFirst shortestJobFirst = new ShortestJobFirst(sjfpProcesses);
         shortestJobFirst.run();
+        
+        List<Process> PriorityProcesses = new ArrayList<>();
+        PriorityProcesses.add(new PriorityProcess("P4", 10, 6, 3, "white"));
+        PriorityProcesses.add(new PriorityProcess("P5", 12, 5, 4, "white"));
+        PriorityProcesses.add(new PriorityProcess("P1", 0, 4, 0, "red"));
+        PriorityProcesses.add(new PriorityProcess("P2", 1, 8, 1, "blue"));
+        PriorityProcesses.add(new PriorityProcess("P3", 3, 2, 2, "yellow"));
+        PriorityProcesses.add(new PriorityProcess("P4", 10, 6, 3, "white"));
+        PriorityProcesses.add(new PriorityProcess("P5", 12, 5, 4, "white"));
 
+        float contextSwitchTime = 5;
+        PriorityScheduling priorityScheduler = new PriorityScheduling(PriorityProcesses,contextSwitchTime);
+//        priorityScheduler.run();
+        
         List<Process> FCAIProcesses = new ArrayList<>();
         FCAIProcesses.add(new FCAIProcess("P1", 0, 17, 4, 4, "red"));
         FCAIProcesses.add(new FCAIProcess("P2", 3, 6, 9, 3, "yellow"));
