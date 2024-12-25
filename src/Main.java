@@ -1,35 +1,23 @@
-import Processes.PriorityProcess;
+import Processes.*;
 import Processes.Process;
-import Processes.ShortestJobFirstProcess;
-import Schedulers.ShortestJobFirst;
 import Schedulers.FCAIScheduling;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import Processes.FCAIProcess;
-import Schedulers.PriorityScheduling;
+import Schedulers.ShortestJobFirst;
+import Schedulers.ShortestRemainingTimeFirst;
 
 public class Main {
     public static void main(String[] args) {
-        List<Process> PriorityProcesses = new ArrayList<>();
-        PriorityProcesses.add(new ShortestJobFirstProcess("P1", 0, 7, 0, "red"));
-        PriorityProcesses.add(new ShortestJobFirstProcess("P2", 0, 8, 1, "blue"));
-        PriorityProcesses.add(new ShortestJobFirstProcess("P3", 3, 2, 2, "yellow"));
-        PriorityProcesses.add(new ShortestJobFirstProcess("P4", 1, 9, 1, "blue"));
-        PriorityProcesses.add(new ShortestJobFirstProcess("P5", 2, 10, 1, "blue"));
-        /*PriorityProcesses.add(new PriorityProcess("P4", 10, 6, 3, "white"));
-        PriorityProcesses.add(new PriorityProcess("P5", 12, 5, 4, "white"));
-        PriorityProcesses.add(new PriorityProcess("P1", 0, 4, 0, "red"));
-        PriorityProcesses.add(new PriorityProcess("P2", 1, 8, 1, "blue"));
-        PriorityProcesses.add(new PriorityProcess("P3", 3, 2, 2, "yellow"));
-        PriorityProcesses.add(new PriorityProcess("P4", 10, 6, 3, "white"));
-        PriorityProcesses.add(new PriorityProcess("P5", 12, 5, 4, "white"));*/
-
-        float contextSwitchTime = 5;
-
-//        ShortestJobFirst priorityScheduler = new ShortestJobFirst(PriorityProcesses);
-//        priorityScheduler.run();
+        List<Process> sjfpProcesses = new ArrayList<>();
+        sjfpProcesses.add(new ShortestJobFirstProcess("P1", 0, 7, 0, "red"));
+        sjfpProcesses.add(new ShortestJobFirstProcess("P2", 0, 8, 1, "blue"));
+        sjfpProcesses.add(new ShortestJobFirstProcess("P3", 3, 2, 2, "yellow"));
+        sjfpProcesses.add(new ShortestJobFirstProcess("P4", 1, 9, 1, "blue"));
+        sjfpProcesses.add(new ShortestJobFirstProcess("P5", 2, 10, 1, "blue"));
+        ShortestJobFirst shortestJobFirst = new ShortestJobFirst(sjfpProcesses);
+        shortestJobFirst.run();
 
         List<Process> FCAIProcesses = new ArrayList<>();
         FCAIProcesses.add(new FCAIProcess("P1", 0, 17, 4, 4, "red"));
@@ -38,17 +26,16 @@ public class Main {
         FCAIProcesses.add(new FCAIProcess("P4", 29, 4, 10, 2, "black"));
         FCAIScheduling fcaiScheduling = new FCAIScheduling(FCAIProcesses);
 
-        fcaiScheduling.run();
-/*
+//        fcaiScheduling.run();
+
         List<Process> shortestRemainingTimeProcesses = new ArrayList<>();
-        shortestRemainingTimeProcesses.add( new ShortestRemainingTimeProcess("P1", 0, 4, 4, "red", 1));
-        shortestRemainingTimeProcesses.add( new ShortestRemainingTimeProcess("P2", 1, 8, 3, "green", 1));
-        shortestRemainingTimeProcesses.add( new ShortestRemainingTimeProcess("P3", 3, 2, 6, "blue", 1));
-        shortestRemainingTimeProcesses.add( new ShortestRemainingTimeProcess("P4", 10, 6, 9, "gray", 1));
-        shortestRemainingTimeProcesses.add( new ShortestRemainingTimeProcess("P5", 12, 5, 10, "black", 1));
-        ShortestRemainingTimeFirst srtf=new ShortestRemainingTimeFirst(shortestRemainingTimeProcesses);
-        srtf.run();
-        */
+        shortestRemainingTimeProcesses.add(new ShortestRemainingTimeProcess("P1", 0, 4, 4, "red"));
+        shortestRemainingTimeProcesses.add(new ShortestRemainingTimeProcess("P2", 1, 8, 3, "green"));
+        shortestRemainingTimeProcesses.add(new ShortestRemainingTimeProcess("P3", 3, 2, 6, "blue"));
+        shortestRemainingTimeProcesses.add(new ShortestRemainingTimeProcess("P4", 10, 6, 9, "gray"));
+        shortestRemainingTimeProcesses.add(new ShortestRemainingTimeProcess("P5", 12, 5, 10, "black"));
+        ShortestRemainingTimeFirst srtf = new ShortestRemainingTimeFirst(shortestRemainingTimeProcesses, 1);
+//        srtf.run();
     }
 
 }
